@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:mysql:8://aof-member
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: false
+    open-in-view: false
+    show-sql: false
+
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: off
