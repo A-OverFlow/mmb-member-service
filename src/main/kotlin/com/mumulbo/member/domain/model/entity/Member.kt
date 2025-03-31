@@ -6,6 +6,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.Index
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
 
@@ -25,7 +26,7 @@ class Member(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
-
+  
     companion object {
         fun of(request: MemberSignUpRequest) =
             Member(request.name, request.email)
