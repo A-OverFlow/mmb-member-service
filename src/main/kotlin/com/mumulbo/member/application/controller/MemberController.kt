@@ -1,6 +1,7 @@
 package com.mumulbo.member.application.controller
 
 import com.mumulbo.member.application.request.MemberSignInRequest
+import com.mumulbo.member.application.request.MemberSignUpRequest
 import com.mumulbo.member.domain.service.MemberService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -15,6 +16,11 @@ import org.springframework.web.bind.annotation.RestController
 class MemberController(
     private val memberService: MemberService
 ) {
+    @PostMapping("/sign-up")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun signUp(@Valid @RequestBody request: MemberSignUpRequest) =
+        memberService.signUp(request)
+
     @PostMapping("/sign-in")
     @ResponseStatus(HttpStatus.OK)
     fun signIn(@Valid @RequestBody request: MemberSignInRequest) =

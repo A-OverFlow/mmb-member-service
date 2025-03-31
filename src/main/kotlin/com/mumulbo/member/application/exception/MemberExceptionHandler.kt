@@ -1,6 +1,7 @@
 package com.mumulbo.member.application.exception
 
 import com.mumulbo.member.common.response.ErrorResponse
+import com.mumulbo.member.domain.model.exception.MemberAlreadyExistsException
 import com.mumulbo.member.domain.model.exception.MemberException
 import com.mumulbo.member.domain.model.exception.MemberNotFoundException
 import org.springframework.core.Ordered
@@ -16,5 +17,10 @@ class MemberExceptionHandler {
     @ExceptionHandler(MemberNotFoundException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     fun handleNotFound(exception: MemberException) =
+        ErrorResponse(exception.status, exception.errorCode, exception.message!!)
+
+    @ExceptionHandler(MemberAlreadyExistsException::class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    fun handleConflict(exception: MemberException) =
         ErrorResponse(exception.status, exception.errorCode, exception.message!!)
 }
