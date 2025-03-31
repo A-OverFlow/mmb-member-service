@@ -28,4 +28,9 @@ class MemberService(
         val member = memberRepository.findByNameAndEmail(request.name, request.email) ?: throw MemberNotFoundException()
         return MemberSignInResponse.of(member)
     }
+
+    fun withdraw(id: Long) {
+        val member = memberRepository.findById(id).orElseThrow { MemberNotFoundException() }
+        memberRepository.delete(member)
+    }
 }
