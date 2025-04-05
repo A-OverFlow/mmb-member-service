@@ -25,6 +25,11 @@ spring:
     open-in-view: false
     show-sql: false
 
+jwt:
+  secret-key: ${SECRET_KEY}
+  refresh-token-expiration: ${REFRESH_TOKEN_EXPIRATION}
+  access-token-expiration: ${ACCESS_TOKEN_EXPIRATION}
+
 logging:
   level:
     org.hibernate.orm.jdbc.bind: off

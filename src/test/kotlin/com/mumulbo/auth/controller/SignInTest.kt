@@ -1,11 +1,10 @@
-package com.mumulbo.member.controller
+package com.mumulbo.auth.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mumulbo.config.TestContainers
 import com.mumulbo.member.dto.request.MemberSignInRequest
 import com.mumulbo.member.entity.Member
 import com.mumulbo.member.repository.MemberRepository
-import org.hamcrest.Matchers
 import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -16,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
@@ -33,14 +33,19 @@ class SignInTest : TestContainers() {
     private lateinit var memberRepository: MemberRepository
 
     @Autowired
+    private lateinit var passwordEncoder: PasswordEncoder
+
+    @Autowired
     private lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
     fun init() {
         // given
-        val name = "Joon Hee Song"
+        val name = "송준희"
         val email = "joonhee.song@ahnlab.com"
-        memberRepository.save(Member(name, email, "", ""))
+        val username = "joonhee.song"
+        val password = "password"
+        memberRepository.save(Member(name, email, username, passwordEncoder.encode(password)))
     }
 
     @AfterEach
@@ -50,37 +55,38 @@ class SignInTest : TestContainers() {
 
     @DisplayName("로그인 성공")
     @Test
-    fun `sign in succeeded`() {
+    fun `success-sign in`() {
         // given
-        val name = "Joon Hee Song"
+        val name = "송준희"
         val email = "joonhee.song@ahnlab.com"
-        val request = MemberSignInRequest(name, email)
+        val username = "joonhee.song"
+        val password = "password"
+        val request = MemberSignInRequest(username, password)
 
         // when // then
         mockMvc.perform(
             MockMvcRequestBuilders
-                .post("/api/v1/members/sign-in")
+                .post("/api/v1/auth/sign-in")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.id").value(Matchers.isA(Long::class.java), Long::class.java))
-            .andExpect(jsonPath("$.name", `is`(name)))
-            .andExpect(jsonPath("$.email", `is`(email)))
+            .andExpect(jsonPath("$.refreshToken").isString)
+            .andExpect(jsonPath("$.accessToken").isString)
     }
 
     @DisplayName("로그인 실패 - 비정상적인 입력")
     @Test
-    fun `sign in failed - invalid request`() {
+    fun `fail-invalid request`() {
         // given
-        val name = "name is too long"
-        val email = "invalid email format"
-        val request = MemberSignInRequest(name, email)
+        val username = "abcdefghijklmnopqrstuvwxyz"
+        val password = "password"
+        val request = MemberSignInRequest(username, password)
 
         // when // then
         mockMvc.perform(
             MockMvcRequestBuilders
-                .post("/api/v1/members/sign-in")
+                .post("/api/v1/auth/sign-in")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -91,22 +97,22 @@ class SignInTest : TestContainers() {
 
     @DisplayName("로그인 실패 - 존해자히 않는 사용자")
     @Test
-    fun `sign in failed - member not found`() {
+    fun `fail-member not found`() {
         // given
-        val name = "anonymous"
-        val email = "anonymous@ahnlab.com"
-        val request = MemberSignInRequest(name, email)
+        val username = "anonymous"
+        val password = "anonymous"
+        val request = MemberSignInRequest(username, password)
 
         // when // then
         mockMvc.perform(
             MockMvcRequestBuilders
-                .post("/api/v1/members/sign-in")
+                .post("/api/v1/auth/sign-in")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isNotFound)
             .andExpect(jsonPath("$.status", `is`(HttpStatus.NOT_FOUND.value())))
             .andExpect(jsonPath("$.error", `is`("MEMBER-001")))
-            .andExpect(jsonPath("$.message", `is`("존재하지 않는 사용자입니다.")))
+            .andExpect(jsonPath("$.message", `is`("존재하지 않는 회원입니다.")))
     }
 }
