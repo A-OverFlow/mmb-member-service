@@ -1,7 +1,7 @@
 package com.mumulbo.member.service
 
-import com.mumulbo.member.dto.request.MemberSignInRequest
 import com.mumulbo.config.TestContainers
+import com.mumulbo.member.dto.request.MemberSignInRequest
 import com.mumulbo.member.entity.Member
 import com.mumulbo.member.exception.MemberNotFoundException
 import com.mumulbo.member.repository.MemberRepository
@@ -29,7 +29,7 @@ class SignInTest : TestContainers() {
         // given
         val name = "Joon Hee Song"
         val email = "joonhee.song@ahnlab.com"
-        memberRepository.save(Member(name, email))
+        memberRepository.save(Member(name, email, "", ""))
     }
 
     @AfterEach

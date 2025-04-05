@@ -12,5 +12,13 @@ class MemberSignUpRequest(
     @field:NotBlank(message = "이메일은 필수입니다.")
     @field:Email(message = "올바른 이메일 형식이 아닙니다.")
     @field:Size(max = 254, message = "이메일은 최대 254자까지 가능합니다.")
-    val email: String
+    val email: String,
+
+    @field:NotBlank(message = "아이디는 필수입니다.")
+    @field:Size(max = 20, message = "이메일은 최대 20자까지 가능합니다.")
+    val username: String,
+
+    @field:NotBlank(message = "비밀번호는 필수입니다.")
+    @field:Size(max = 20, message = "이메일은 최대 20자까지 가능합니다.")
+    val password: String
 )
