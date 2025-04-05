@@ -1,7 +1,7 @@
-package com.mumulbo.member.service
+package com.mumulbo.auth.service
 
-import com.mumulbo.member.dto.request.MemberSignUpRequest
 import com.mumulbo.config.TestContainers
+import com.mumulbo.member.dto.request.MemberSignUpRequest
 import com.mumulbo.member.entity.Member
 import com.mumulbo.member.exception.MemberAlreadyExistsException
 import com.mumulbo.member.repository.MemberRepository
@@ -18,7 +18,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @Testcontainers
 class SignUpTest : TestContainers() {
     @Autowired
-    private lateinit var memberService: MemberService
+    private lateinit var authService: AuthService
 
     @Autowired
     private lateinit var memberRepository: MemberRepository
@@ -32,31 +32,35 @@ class SignUpTest : TestContainers() {
     @Test
     fun `sign up succeeded`() {
         // given
-        val name = "Joon Hee Song"
+        val name = "송준희"
         val email = "joonhee.song@ahnlab.com"
-        val request = MemberSignUpRequest(name, email)
+        val username = "joonhee.song"
+        val password = "password"
+        val request = MemberSignUpRequest(name, email, username, password)
 
         // when
-        val response = memberService.signUp(request)
+        val response = authService.signUp(request)
 
         // then
         assertThat(response)
-            .extracting("name", "email")
-            .containsSequence(name, email)
+            .extracting("name", "email", "username")
+            .containsSequence(name, email, username)
     }
 
     @DisplayName("회원가입 실패 - 이미 가입한 사용자")
     @Test
     fun `sign up failed - member already exists`() {
         // given
-        val name = "Joon Hee Song"
+        val name = "송준희"
         val email = "joonhee.song@ahnlab.com"
-        memberRepository.save(Member(name, email))
+        val username = "joonhee.song"
+        val password = "encoded password"
+        memberRepository.save(Member(name, email, username, password))
 
-        val request = MemberSignUpRequest(name, email)
+        val request = MemberSignUpRequest(name, email, username, password)
 
         // when // then
-        assertThatThrownBy { memberService.signUp(request) }
+        assertThatThrownBy { authService.signUp(request) }
             .isInstanceOf(MemberAlreadyExistsException::class.java)
     }
 }
