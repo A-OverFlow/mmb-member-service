@@ -1,10 +1,11 @@
 package com.mumulbo.auth.service
 
+import com.mumulbo.auth.exception.InvalidTokenException
+import com.mumulbo.auth.repository.RedisRepository
 import com.mumulbo.config.TestContainers
-import com.mumulbo.member.dto.request.MemberSignInRequest
 import com.mumulbo.member.entity.Member
-import com.mumulbo.member.exception.MemberNotFoundException
 import com.mumulbo.member.repository.MemberRepository
+import java.time.Duration
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.AfterEach
@@ -23,7 +24,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 
 @SpringBootTest
 @Testcontainers
-class SignInTest : TestContainers() {
+class RefreshTokenTest : TestContainers() {
     @Autowired
     private lateinit var authService: AuthService
 
@@ -34,7 +35,13 @@ class SignInTest : TestContainers() {
     private lateinit var passwordEncoder: PasswordEncoder
 
     @Autowired
+    private lateinit var redisRepository: RedisRepository
+
+    @Autowired
     private lateinit var redisTemplate: StringRedisTemplate
+
+    @Autowired
+    private lateinit var jwtTokenProvider: JwtTokenProvider
 
     companion object {
         @Container
@@ -65,36 +72,57 @@ class SignInTest : TestContainers() {
         redisTemplate.connectionFactory?.connection?.serverCommands()?.flushAll()
     }
 
-    @DisplayName("로그인 성공")
+    @DisplayName("성공-토큰 재발행")
     @Test
-    fun `success-sign in`() {
+    fun `success-refresh token`() {
         // given
         val username = "joonhee.song"
-        val password = "password"
-        val request = MemberSignInRequest(username, password)
+        val refreshToken = jwtTokenProvider.generateRefreshToken(username)
+        redisRepository.save(1L, refreshToken)
 
         // when
-        val response = authService.signIn(request)
+        val response = authService.refreshToken(refreshToken)
 
         // then
-        assertThat(response.refreshToken).isNotNull()
-        assertThat(response.accessToken).isNotNull()
-
-        val member = memberRepository.findByUsername(username)!!
-        val refreshToken = redisTemplate.opsForValue().get("refresh:member:${member.id}")
-        assertThat(response.refreshToken).isEqualTo(refreshToken)
+        assertThat(jwtTokenProvider.getUsernameFromToken(response.refreshToken)).isEqualTo(username)
     }
 
-    @DisplayName("로그인 실패 - 존재하지 않는 사용자")
+    @DisplayName("실패-유효하지 않은 토큰")
     @Test
-    fun `fail-member not found`() {
+    fun `fail-invalid token`() {
         // given
-        val username = "anonymous"
-        val password = "anonymous"
-        val request = MemberSignInRequest(username, password)
+        val refreshToken = "invalid token"
 
-        // when //then
-        assertThatThrownBy { authService.signIn(request) }
-            .isInstanceOf(MemberNotFoundException::class.java)
+        // when // then
+        assertThatThrownBy { authService.refreshToken(refreshToken) }
+            .isInstanceOf(InvalidTokenException::class.java)
+    }
+
+    @DisplayName("실패-만료된 토큰")
+    @Test
+    fun `fail-token expired`() {
+        // given
+        val username = "joonhee.song"
+        val refreshToken = jwtTokenProvider.generateRefreshToken(username)
+        redisRepository.save(1L, refreshToken, Duration.ofMillis(1L))
+
+        // when // then
+        assertThatThrownBy { authService.refreshToken(refreshToken) }
+            .isInstanceOf(InvalidTokenException::class.java)
+    }
+
+    @DisplayName("실패-변조된 토큰")
+    @Test
+    fun `fail-token tampered`() {
+        // given
+        val username = "joonhee.song"
+        val refreshToken = jwtTokenProvider.generateRefreshToken(username)
+        redisRepository.save(1L, refreshToken)
+
+        val temperedRefreshToken = jwtTokenProvider.generateRefreshToken(username)
+
+        // when // then
+        assertThatThrownBy { authService.refreshToken(temperedRefreshToken) }
+            .isInstanceOf(InvalidTokenException::class.java)
     }
 }
