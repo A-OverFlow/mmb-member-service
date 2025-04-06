@@ -1,11 +1,10 @@
-package com.mumulbo.member.controller
+package com.mumulbo.auth.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.mumulbo.member.dto.request.MemberSignUpRequest
 import com.mumulbo.config.TestContainers
+import com.mumulbo.member.dto.request.MemberSignUpRequest
 import com.mumulbo.member.entity.Member
 import com.mumulbo.member.repository.MemberRepository
-import org.hamcrest.Matchers
 import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
@@ -43,35 +42,39 @@ class SignUpTest : TestContainers() {
     @Test
     fun `sign up succeeded`() {
         // given
-        val name = "Joon Hee Song"
+        val name = "송준희"
         val email = "joonhee.song@ahnlab.com"
-        val request = MemberSignUpRequest(name, email)
+        val username = "joonhee.song"
+        val password = "password"
+        val request = MemberSignUpRequest(name, email, username, password)
 
         // when // then
         mockMvc.perform(
             MockMvcRequestBuilders
-                .post("/api/v1/members/sign-up")
+                .post("/api/v1/auth/sign-up")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isCreated)
-            .andExpect(jsonPath("$.id").value(Matchers.isA(Long::class.java), Long::class.java))
             .andExpect(jsonPath("$.name", `is`(name)))
             .andExpect(jsonPath("$.email", `is`(email)))
+            .andExpect(jsonPath("$.username", `is`(username)))
     }
 
     @DisplayName("회원가입 실패 - 유효하지 않은 입력값")
     @Test
     fun `sign up failed - invalid request`() {
         // given
-        val name = "Joon Hee Song"
+        val name = "송준희"
         val email = "invalid email"
-        val request = MemberSignUpRequest(name, email)
+        val username = "joonhee.song"
+        val password = "password"
+        val request = MemberSignUpRequest(name, email, username, password)
 
         // when // then
         mockMvc.perform(
             MockMvcRequestBuilders
-                .post("/api/v1/members/sign-up")
+                .post("/api/v1/auth/sign-up")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -84,22 +87,24 @@ class SignUpTest : TestContainers() {
     @Test
     fun `sign up failed - member already exists`() {
         // given
-        val name = "Joon Hee Song"
+        val name = "송준희"
         val email = "joonhee.song@ahnlab.com"
-        memberRepository.save(Member(name, email))
+        val username = "joonhee.song"
+        val password = "password"
+        memberRepository.save(Member(name, email, username, password))
 
-        val request = MemberSignUpRequest(name, email)
+        val request = MemberSignUpRequest(name, email, username, password)
 
         // when // then
         mockMvc.perform(
             MockMvcRequestBuilders
-                .post("/api/v1/members/sign-up")
+                .post("/api/v1/auth/sign-up")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isConflict)
             .andExpect(jsonPath("$.status", `is`(HttpStatus.CONFLICT.value())))
             .andExpect(jsonPath("$.error", `is`("MEMBER-002")))
-            .andExpect(jsonPath("$.message", `is`("이미 가입한 사용자입니다.")))
+            .andExpect(jsonPath("$.message", `is`("이미 가입한 회원입니다.")))
     }
 }

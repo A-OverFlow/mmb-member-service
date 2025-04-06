@@ -40,7 +40,7 @@ class SignInTest : TestContainers() {
         // given
         val name = "Joon Hee Song"
         val email = "joonhee.song@ahnlab.com"
-        memberRepository.save(Member(name, email))
+        memberRepository.save(Member(name, email, "", ""))
     }
 
     @AfterEach
