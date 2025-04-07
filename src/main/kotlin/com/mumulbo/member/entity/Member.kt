@@ -1,7 +1,10 @@
 package com.mumulbo.member.entity
 
+import com.mumulbo.member.enums.Role
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -30,6 +33,9 @@ class Member(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
+
+    @Enumerated(EnumType.STRING)
+    val role: Role = Role.MEMBER
 
     companion object {
         fun of(name: String, email: String, username: String, password: String) =
