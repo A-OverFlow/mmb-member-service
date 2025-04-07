@@ -1,3 +1,4 @@
+#dev deploy
 name: CD Dev
 
 on:
