@@ -4,7 +4,7 @@ FROM eclipse-temurin:21-jdk AS builder
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# Gradle 캐시를 활용하기 위해 설정 파일 먼저 복사.
+# Gradle 캐시를 활용하기 위해 설정 파일 먼저 복사
 COPY gradlew ./
 COPY gradle gradle
 COPY settings.gradle.kts .
