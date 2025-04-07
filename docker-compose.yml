@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  member-service:
+    build:
+      dockerfile: ./Dockerfile
+    container_name: mmb-member-service
+    ports:
+      - 8080:${APPLICATION_PORT}
+    environment:
+      APPLICATION_PORT: ${APPLICATION_PORT}
+      APPLICATION_NAME: ${APPLICATION_NAME}
+      DATASOURCE_URL: ${DATASOURCE_URL}
+      DATASOURCE_USERNAME: ${DATASOURCE_USERNAME}
+      DATASOURCE_PASSWORD: ${DATASOURCE_PASSWORD}
+      REDIS_URL: ${REDIS_URL}
+      REDIS_PORT: ${REDIS_PORT}
+      SECRET_KEY: ${SECRET_KEY}
+      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
+      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
+#    restart: always
