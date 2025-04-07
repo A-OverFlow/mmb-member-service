@@ -38,7 +38,7 @@ class WithdrawTest : TestContainers() {
         // given
         val name = "Joon Hee Song"
         val email = "joonhee.song@ahnlab.com"
-        val member = memberRepository.save(Member(name, email))
+        val member = memberRepository.save(Member(name, email, "", ""))
 
         // when // then
         mockMvc.perform(
@@ -59,6 +59,6 @@ class WithdrawTest : TestContainers() {
             .andExpect(status().isNotFound)
             .andExpect(jsonPath("$.status", `is`(HttpStatus.NOT_FOUND.value())))
             .andExpect(jsonPath("$.error", `is`("MEMBER-001")))
-            .andExpect(jsonPath("$.message", `is`("존재하지 않는 사용자입니다.")))
+            .andExpect(jsonPath("$.message", `is`("존재하지 않는 회원입니다.")))
     }
 }
