@@ -9,14 +9,9 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import jakarta.persistence.UniqueConstraint
 
 @Entity
-@Table(
-    uniqueConstraints = [
-        UniqueConstraint(name = "member_unique_email", columnNames = ["email"])
-    ]
-)
+@Table
 class Member(
     @field:Column(nullable = false, length = 100)
     val name: String,
