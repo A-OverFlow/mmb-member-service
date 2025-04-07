@@ -28,17 +28,8 @@ FROM eclipse-temurin:21-jre
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# 빌드된 JAR 복사 (특정 서비스 이름으로 구별)
-COPY --from=builder /app/build/libs/*-all.jar member-service.jar
+# 빌드된 JAR 복사 (이름 패턴 수정)
+COPY --from=builder /app/build/libs/*.jar /app/member-service.jar
 
 # 애플리케이션 실행
 ENTRYPOINT ["java", "-jar", "/app/member-service.jar"]
-
-
-#FROM amazoncorretto:21
-#
-#ARG JAR_FILE=build/libs/mmb-member-service-1.0.0.jar
-#
-#COPY ${JAR_FILE} member-service.jar
-#
-#ENTRYPOINT ["java","-jar","/member-service.jar"]
