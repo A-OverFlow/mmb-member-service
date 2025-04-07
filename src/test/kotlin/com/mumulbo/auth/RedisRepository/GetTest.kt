@@ -1,11 +1,11 @@
-package com.mumulbo.auth.refreshTokenRepository
+package com.mumulbo.auth.RedisRepository
 
-import com.mumulbo.auth.repository.RefreshTokenRepository
+import com.mumulbo.auth.repository.RedisRepository
 import java.time.Duration
-import kotlin.test.Test
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.redis.core.StringRedisTemplate
@@ -17,16 +17,15 @@ import org.testcontainers.junit.jupiter.Testcontainers
 
 @SpringBootTest
 @Testcontainers
-class SaveTest {
+class GetTest {
     @Autowired
-    private lateinit var refreshTokenRepository: RefreshTokenRepository
+    private lateinit var redisRepository: RedisRepository
 
     @Autowired
     private lateinit var redisTemplate: StringRedisTemplate
 
     private val id = 1L
     private val refreshToken = "refresh token"
-    private val duration = Duration.ofDays(7)
 
     companion object {
         @Container
@@ -47,13 +46,15 @@ class SaveTest {
     }
 
     @Test
-    @DisplayName("성공-refresh token 저장")
-    fun `success-save refresh token`() {
-        // when
-        refreshTokenRepository.save(id, refreshToken, duration)
+    @DisplayName("성공-refresh token 조회")
+    fun `success-get refresh token`() {
+        // given
+        val key = "refresh:member:$id"
+        val duration = Duration.ofDays(7)
+        redisTemplate.opsForValue().set(key, refreshToken, duration)
 
-        // then
-        val refreshToken = redisTemplate.opsForValue().get("refresh:member:$id")
-        assertThat(this.refreshToken).isEqualTo(refreshToken)
+        // when // then
+        val token = redisRepository.get(id)
+        assertThat(token).isEqualTo(refreshToken)
     }
 }

@@ -4,6 +4,7 @@ import com.mumulbo.common.response.ErrorResponse
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -19,5 +20,11 @@ class GeneralExceptionHandler {
             "[${fieldError.field}](은)는 ${fieldError.defaultMessage}"
         }
         return ErrorResponse(HttpStatus.BAD_REQUEST, "System-001", message)
+    }
+
+    @ExceptionHandler(GlobalException::class)
+    fun handleCustomException(exception: GlobalException): ResponseEntity<ErrorResponse> {
+        val errorResponse = ErrorResponse.of(exception.errorCode)
+        return ResponseEntity.status(errorResponse.status).body(errorResponse)
     }
 }
