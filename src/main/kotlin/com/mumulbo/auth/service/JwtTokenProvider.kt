@@ -48,6 +48,7 @@ class JwtTokenProvider(
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)
             return true
         } catch (e: JwtException) {
+            println("token: $token")
             return false
         }
     }
@@ -58,5 +59,14 @@ class JwtTokenProvider(
             .build()
             .parseClaimsJws(token)
             .body.subject
+    }
+
+    fun getIdFromToken(token: String): Long {
+        val claims = Jwts.parserBuilder()
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(token)
+            .body
+        return claims["id"].toString().toLong()
     }
 }
