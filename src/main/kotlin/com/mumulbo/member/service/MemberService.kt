@@ -1,7 +1,9 @@
 package com.mumulbo.member.service
 
+import com.mumulbo.member.dto.request.MemberCheckRequest
 import com.mumulbo.member.dto.request.MemberCreateRequest
 import com.mumulbo.member.dto.request.MemberUpdateRequest
+import com.mumulbo.member.dto.response.MemberCheckResponse
 import com.mumulbo.member.dto.response.MemberCreateResponse
 import com.mumulbo.member.dto.response.MemberGetResponse
 import com.mumulbo.member.dto.response.MemberUpdateResponse
@@ -16,13 +18,18 @@ class MemberService(
     private val memberRepository: MemberRepository
 ) {
     fun createMember(request: MemberCreateRequest): MemberCreateResponse {
-        if (memberRepository.existsByUsername(request.username)) {
+        if (memberRepository.existsByEmail(request.email)) {
             throw MemberAlreadyExistsException()
         }
 
         val member = Member.of(request)
         memberRepository.save(member)
         return MemberCreateResponse.of(member)
+    }
+
+    fun checkMember(request: MemberCheckRequest): MemberCheckResponse {
+        val member = memberRepository.findByEmail(request.email) ?: throw MemberNotFoundException()
+        return MemberCheckResponse(member.id!!)
     }
 
     fun getMember(id: Long): MemberGetResponse {

@@ -19,12 +19,12 @@ class GeneralExceptionHandler {
         val message = exception.bindingResult.fieldErrors.joinToString("") { fieldError ->
             "[${fieldError.field}](은)는 ${fieldError.defaultMessage}"
         }
-        return ErrorResponse(HttpStatus.BAD_REQUEST, "System-001", message)
+        return ErrorResponse("SYSTEM-001", message)
     }
 
     @ExceptionHandler(GlobalException::class)
     fun handleCustomException(exception: GlobalException): ResponseEntity<ErrorResponse> {
         val errorResponse = ErrorResponse.of(exception.errorCode)
-        return ResponseEntity.status(errorResponse.status).body(errorResponse)
+        return ResponseEntity.status(exception.errorCode.status).body(errorResponse)
     }
 }
