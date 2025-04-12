@@ -3,6 +3,7 @@ package com.mumulbo.member.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mumulbo.config.TestContainers
 import com.mumulbo.member.dto.request.MemberCreateRequest
+import com.mumulbo.member.entity.Member
 import com.mumulbo.member.repository.MemberRepository
 import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.AfterEach
@@ -13,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -55,5 +57,25 @@ class MemberControllerTest : TestContainers() {
             .andExpect(jsonPath("$.name", `is`(request.name)))
             .andExpect(jsonPath("$.email", `is`(request.email)))
             .andExpect(jsonPath("$.username", `is`(request.username)))
+    }
+
+    @DisplayName("성공-getMember")
+    @Test
+    fun `success-getMember`() {
+        // given
+        val name = "Joon Hee Song"
+        val email = "joonhee.song@ahnlab.com"
+        val username = "joonhee.song"
+        val member = Member(name, email, username)
+        memberRepository.save(member)
+
+        // when // then
+        mockMvc.perform(
+            get("/api/v1/members/{id}", member.id)
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.name", `is`(member.name)))
+            .andExpect(jsonPath("$.email", `is`(member.email)))
+            .andExpect(jsonPath("$.username", `is`(member.username)))
     }
 }
