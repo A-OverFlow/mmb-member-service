@@ -1,6 +1,7 @@
 package com.mumulbo.member.entity
 
 import com.mumulbo.member.dto.request.MemberCreateRequest
+import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.enums.Role
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -15,13 +16,13 @@ import jakarta.persistence.Table
 @Table
 class Member(
     @field:Column
-    val name: String,
+    var name: String,
 
     @field:Column
     val email: String,
 
     @field:Column
-    val username: String
+    var username: String
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,5 +34,10 @@ class Member(
     companion object {
         fun of(request: MemberCreateRequest) =
             Member(request.name, request.email, request.username)
+    }
+
+    fun update(request: MemberUpdateRequest) {
+        this.name = request.name
+        this.username = request.username
     }
 }

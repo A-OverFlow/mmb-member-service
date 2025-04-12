@@ -2,6 +2,7 @@ package com.mumulbo.member.service
 
 import com.mumulbo.config.TestContainers
 import com.mumulbo.member.dto.request.MemberCreateRequest
+import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.entity.Member
 import com.mumulbo.member.exception.MemberAlreadyExistsException
 import com.mumulbo.member.exception.MemberNotFoundException
@@ -90,6 +91,36 @@ class MemberServiceTest : TestContainers() {
 
         // when // then
         assertThatThrownBy { memberService.getMember(id) }
+            .isInstanceOf(MemberNotFoundException::class.java)
+    }
+
+    @DisplayName("성공-updateMember")
+    @Test
+    fun `success-updateMember`() {
+        // given
+        val name = "송준희2"
+        val username = "joonhee.song2"
+        val request = MemberUpdateRequest(name, username)
+
+        // when
+        val response = memberService.updateMember(member.id!!, request)
+
+        // then
+        assertThat(response)
+            .extracting("name", "username")
+            .contains(name, username)
+    }
+
+    @DisplayName("실패-updateMember")
+    @Test
+    fun `fail-updateMember`() {
+        // given
+        val name = "송준희2"
+        val username = "joonhee.song2"
+        val request = MemberUpdateRequest(name, username)
+
+        // when // then
+        assertThatThrownBy { memberService.updateMember(999_999L, request) }
             .isInstanceOf(MemberNotFoundException::class.java)
     }
 }
