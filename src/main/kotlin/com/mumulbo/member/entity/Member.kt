@@ -1,5 +1,6 @@
 package com.mumulbo.member.entity
 
+import com.mumulbo.member.dto.request.MemberCreateRequest
 import com.mumulbo.member.enums.Role
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -13,17 +14,14 @@ import jakarta.persistence.Table
 @Entity
 @Table
 class Member(
-    @field:Column(nullable = false, length = 100)
+    @field:Column
     val name: String,
 
-    @field:Column(nullable = false, length = 254)
+    @field:Column
     val email: String,
 
-    @field:Column(nullable = false, length = 20, unique = true)
-    val username: String,
-
-    @field:Column(nullable = false, length = 60, unique = true)
-    val password: String
+    @field:Column
+    val username: String
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +31,7 @@ class Member(
     val role: Role = Role.MEMBER
 
     companion object {
-        fun of(name: String, email: String, username: String, password: String) =
-            Member(name, email, username, password)
+        fun of(request: MemberCreateRequest) =
+            Member(request.name, request.email, request.username)
     }
 }

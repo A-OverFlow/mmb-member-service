@@ -38,7 +38,8 @@ class WithdrawTest : TestContainers() {
         // given
         val name = "Joon Hee Song"
         val email = "joonhee.song@ahnlab.com"
-        val member = memberRepository.save(Member(name, email, "", ""))
+        val username = "joonhee.song"
+        val member = memberRepository.save(Member(name, email, username))
 
         // when // then
         mockMvc.perform(

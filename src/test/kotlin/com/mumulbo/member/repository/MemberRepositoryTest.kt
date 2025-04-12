@@ -2,9 +2,8 @@ package com.mumulbo.member.repository
 
 import com.mumulbo.config.TestContainers
 import com.mumulbo.member.entity.Member
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -14,7 +13,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 
 @DataJpaTest
 @Testcontainers
-class ExistsByUsernameTest : TestContainers() {
+class MemberRepositoryTest : TestContainers() {
     @Autowired
     private lateinit var memberRepository: MemberRepository
 
@@ -24,8 +23,7 @@ class ExistsByUsernameTest : TestContainers() {
         val name = "송준희"
         val email = "joonhee.song@ahnlab.com"
         val username = "joonhee.song"
-        val password = "password"
-        memberRepository.save(Member(name, email, username, password))
+        memberRepository.save(Member(name, email, username))
     }
 
     @AfterEach
@@ -33,23 +31,45 @@ class ExistsByUsernameTest : TestContainers() {
         memberRepository.deleteAllInBatch()
     }
 
-    @DisplayName("username이 존재")
+    @DisplayName("성공-existsByUsername")
     @Test
-    fun `success-username exists`() {
+    fun `success-existsByUsername`() {
         // when
         val isExist = memberRepository.existsByUsername("joonhee.song")
 
         // then
-        assertTrue(isExist)
+        assertThat(isExist).isTrue()
     }
 
-    @DisplayName("username이 존재하지 않음")
+    @DisplayName("실패-existsByUsername")
     @Test
-    fun `fail-username not exists`() {
+    fun `fail-existsByUsername`() {
         // when
         val isExist = memberRepository.existsByUsername("anonymous")
 
         // then
-        assertFalse(isExist)
+        assertThat(isExist).isFalse()
+    }
+
+    @DisplayName("성공-findByUsername")
+    @Test
+    fun `success-findByUsername`() {
+        // when
+        val member = memberRepository.findByUsername("joonhee.song")
+
+        // then
+        assertThat(member)
+            .extracting("name", "email", "username")
+            .contains("송준희", "joonhee.song@ahnlab.com", "joonhee.song")
+    }
+
+    @DisplayName("실패-findByUsername")
+    @Test
+    fun `fail-findByUsername`() {
+        // when
+        val member = memberRepository.findByUsername("anonymous")
+
+        // then
+        assertThat(member).isNull()
     }
 }

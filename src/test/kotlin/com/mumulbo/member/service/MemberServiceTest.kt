@@ -1,7 +1,9 @@
 package com.mumulbo.member.service
 
 import com.mumulbo.config.TestContainers
+import com.mumulbo.member.dto.request.MemberCreateRequest
 import com.mumulbo.member.entity.Member
+import com.mumulbo.member.exception.MemberAlreadyExistsException
 import com.mumulbo.member.exception.MemberNotFoundException
 import com.mumulbo.member.repository.MemberRepository
 import org.assertj.core.api.Assertions.assertThat
@@ -31,13 +33,38 @@ class MemberServiceTest : TestContainers() {
         val name = "송준희"
         val email = "joonhee.song@ahnlab.com"
         val username = "joonhee.song"
-        val password = "password"
-        member = memberRepository.save(Member(name, email, username, password))
+        member = memberRepository.save(Member(name, email, username))
     }
 
     @AfterEach
     fun cleansing() {
         memberRepository.deleteAllInBatch()
+    }
+
+    @DisplayName("성공-createMember")
+    @Test
+    fun `success-createMember`() {
+        // given
+        val request = MemberCreateRequest("송준희2", "joonhee.song2@ahnlab.com", "joonhee.song2")
+
+        // when
+        val response = memberService.createMember(request)
+
+        // then
+        assertThat(response)
+            .extracting("name", "email", "username")
+            .contains(request.name, request.email, request.username)
+    }
+
+    @DisplayName("실패-createMember")
+    @Test
+    fun `fail-createMember`() {
+        // given
+        val request = MemberCreateRequest("송준희", "joonhee.song@ahnlab.com", "joonhee.song")
+
+        // when // then
+        assertThatThrownBy { memberService.createMember(request) }
+            .isInstanceOf(MemberAlreadyExistsException::class.java)
     }
 
     @DisplayName("성공-회원 정보 조회")
@@ -58,6 +85,5 @@ class MemberServiceTest : TestContainers() {
         // when // then
         assertThatThrownBy { memberService.getMember(999_999L) }
             .isInstanceOf(MemberNotFoundException::class.java)
-
     }
 }
