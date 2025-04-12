@@ -12,16 +12,6 @@ spring:
     open-in-view: false
     show-sql: false
 
-#  data:
-#    redis:
-#      host:
-#      port:
-
-jwt:
-  secret-key: my-very-secure-and-secret-key-which-should-be-encoded
-  refresh-token-expiration: 604800000
-  access-token-expiration: 3600000
-
 logging:
   level:
     org.hibernate.orm.jdbc.bind: off
