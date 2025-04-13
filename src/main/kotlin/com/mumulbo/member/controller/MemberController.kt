@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -42,7 +41,8 @@ class MemberController(
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun withdraw(@PathVariable id: Long) =
-        memberService.withdraw(id)
+    fun deleteMember(@PathVariable id: Long): ResponseEntity<Void> {
+        memberService.deleteMember(id)
+        return ResponseEntity.noContent().build()
+    }
 }

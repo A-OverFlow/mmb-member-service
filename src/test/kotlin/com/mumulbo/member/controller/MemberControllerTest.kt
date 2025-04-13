@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
@@ -102,5 +103,21 @@ class MemberControllerTest : TestContainers() {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.name", `is`(request.name)))
             .andExpect(jsonPath("$.username", `is`(request.username)))
+    }
+
+    @DisplayName("성공-deleteMember")
+    @Test
+    fun `success-deleteMember`() {
+        // given
+        val name = "Joon Hee Song"
+        val email = "joonhee.song@ahnlab.com"
+        val username = "joonhee.song"
+        val member = memberRepository.save(Member(name, email, username))
+
+        // when // then
+        mockMvc.perform(
+            delete("/api/v1/members/{id}", member.id)
+        )
+            .andExpect(status().isNoContent)
     }
 }

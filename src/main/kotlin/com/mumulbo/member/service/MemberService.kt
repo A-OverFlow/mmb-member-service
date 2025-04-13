@@ -37,7 +37,7 @@ class MemberService(
         return MemberUpdateResponse.of(member)
     }
 
-    fun withdraw(id: Long) {
+    fun deleteMember(id: Long) {
         val member = memberRepository.findById(id).orElseThrow { MemberNotFoundException() }
         memberRepository.delete(member)
     }

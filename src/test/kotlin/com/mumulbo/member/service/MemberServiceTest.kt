@@ -123,4 +123,28 @@ class MemberServiceTest : TestContainers() {
         assertThatThrownBy { memberService.updateMember(999_999L, request) }
             .isInstanceOf(MemberNotFoundException::class.java)
     }
+
+    @DisplayName("성공-deleteMember")
+    @Test
+    fun `success-deleteMember`() {
+        // given
+        val id = member.id!!
+
+        // when
+        memberService.deleteMember(id)
+
+        // then
+        assertThat(memberRepository.existsById(member.id!!)).isFalse()
+    }
+
+    @DisplayName("실패-deleteMember")
+    @Test
+    fun `fail-deleteMember`() {
+        // given
+        val id = 999_999L
+
+        // when // then
+        assertThatThrownBy { memberService.deleteMember(id) }
+            .isInstanceOf(MemberNotFoundException::class.java)
+    }
 }
