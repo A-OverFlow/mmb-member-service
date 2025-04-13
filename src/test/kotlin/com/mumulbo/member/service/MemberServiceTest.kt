@@ -67,11 +67,14 @@ class MemberServiceTest : TestContainers() {
             .isInstanceOf(MemberAlreadyExistsException::class.java)
     }
 
-    @DisplayName("성공-회원 정보 조회")
+    @DisplayName("성공-getMember")
     @Test
-    fun `success-get member`() {
+    fun `success-getMember`() {
+        // given
+        val id = member.id!!
+
         // when
-        val response = memberService.getMember(member.id!!)
+        val response = memberService.getMember(id)
 
         // then
         assertThat(response)
@@ -79,11 +82,14 @@ class MemberServiceTest : TestContainers() {
             .contains(member.name, member.email, member.username)
     }
 
-    @DisplayName("실패-존재하지 않는 회원")
+    @DisplayName("실패-getMember")
     @Test
-    fun test() {
+    fun `fail-getMember`() {
+        // given
+        val id = 999_999L
+
         // when // then
-        assertThatThrownBy { memberService.getMember(999_999L) }
+        assertThatThrownBy { memberService.getMember(id) }
             .isInstanceOf(MemberNotFoundException::class.java)
     }
 }
