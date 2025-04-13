@@ -22,7 +22,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/member-service:prod .
+        run: docker build -t mumulbo/member-service:prod .
 
       - name: Push Docker image to Docker Hub
         env:
@@ -30,7 +30,7 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
           echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-          docker push ${{ secrets.DOCKER_USERNAME }}/member-service:prod
+          docker push mumulbo/member-service:prod
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.8
@@ -39,7 +39,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/member-service:prod
-            docker stop member-service-prod || true
-            docker rm member-service-prod || true
-            docker run -d --name member-service-prod -p 8082:8082 ${{ secrets.DOCKER_USERNAME }}/member-service:prod
+            docker pull mumulbo/member-service:prod
+#            docker stop member-service-prod || true
+#            docker rm member-service-prod || true
+#            docker run -d --name member-service-prod -p 8082:8082 ${{ secrets.DOCKER_USERNAME }}/member-service:prod
