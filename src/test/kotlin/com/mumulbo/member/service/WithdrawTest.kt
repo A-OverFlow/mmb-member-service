@@ -33,7 +33,8 @@ class WithdrawTest : TestContainers() {
         // given
         val name = "Joon Hee Song"
         val email = "joonhee.song@ahnlab.com"
-        val member = memberRepository.save(Member(name, email, "", ""))
+        val username = "joonhee.song"
+        val member = memberRepository.save(Member(name, email, username))
 
         // when
         memberService.withdraw(member.id!!)
@@ -48,7 +49,8 @@ class WithdrawTest : TestContainers() {
         // given
         val name = "Joon Hee Song"
         val email = "joonhee.song@ahnlab.com"
-        memberRepository.save(Member(name, email, "", ""))
+        val username = "joonhee.song"
+        memberRepository.save(Member(name, email, username))
 
         // when // then
         assertThatThrownBy { memberService.withdraw(Long.MAX_VALUE) }
