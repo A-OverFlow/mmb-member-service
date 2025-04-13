@@ -2,6 +2,7 @@ package com.mumulbo.member.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mumulbo.config.TestContainers
+import com.mumulbo.member.dto.request.MemberCheckRequest
 import com.mumulbo.member.dto.request.MemberCreateRequest
 import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.entity.Member
@@ -60,6 +61,28 @@ class MemberControllerTest : TestContainers() {
             .andExpect(jsonPath("$.name", `is`(request.name)))
             .andExpect(jsonPath("$.email", `is`(request.email)))
             .andExpect(jsonPath("$.username", `is`(request.username)))
+    }
+
+    @DisplayName("성공-checkMember")
+    @Test
+    fun `success-checkMember`() {
+        // given
+        val name = "Joon Hee Song"
+        val email = "joonhee.song@ahnlab.com"
+        val username = "joonhee.song"
+        val member = Member(name, email, username)
+        memberRepository.save(member)
+
+        val request = MemberCheckRequest(email)
+
+        // when // then
+        mockMvc.perform(
+            get("/api/v1/members/check")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id", `is`(member.id!!.toInt())))
     }
 
     @DisplayName("성공-getMember")

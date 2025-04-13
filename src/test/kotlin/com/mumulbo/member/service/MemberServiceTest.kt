@@ -1,6 +1,7 @@
 package com.mumulbo.member.service
 
 import com.mumulbo.config.TestContainers
+import com.mumulbo.member.dto.request.MemberCheckRequest
 import com.mumulbo.member.dto.request.MemberCreateRequest
 import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.entity.Member
@@ -66,6 +67,30 @@ class MemberServiceTest : TestContainers() {
         // when // then
         assertThatThrownBy { memberService.createMember(request) }
             .isInstanceOf(MemberAlreadyExistsException::class.java)
+    }
+
+    @DisplayName("성공-checkMember")
+    @Test
+    fun `success-checkMember`() {
+        // given
+        val request = MemberCheckRequest(member.email)
+
+        // when
+        val response = memberService.checkMember(request)
+
+        // then
+        assertThat(response.id).isEqualTo(member.id)
+    }
+
+    @DisplayName("실패-checkMember")
+    @Test
+    fun `fail-checkMember`() {
+        // given
+        val request = MemberCheckRequest("anonymous@ahnlab.com")
+
+        // when // then
+        assertThatThrownBy { memberService.checkMember(request) }
+            .isInstanceOf(MemberNotFoundException::class.java)
     }
 
     @DisplayName("성공-getMember")

@@ -33,9 +33,9 @@ class MemberRepositoryTest : TestContainers() {
 
     @DisplayName("성공-existsByUsername")
     @Test
-    fun `success-existsByUsername`() {
+    fun `success-existsByEmail`() {
         // when
-        val isExist = memberRepository.existsByUsername("joonhee.song")
+        val isExist = memberRepository.existsByEmail("joonhee.song@ahnlab.com")
 
         // then
         assertThat(isExist).isTrue()
@@ -43,19 +43,19 @@ class MemberRepositoryTest : TestContainers() {
 
     @DisplayName("실패-existsByUsername")
     @Test
-    fun `fail-existsByUsername`() {
+    fun `fail-existsByEmail`() {
         // when
-        val isExist = memberRepository.existsByUsername("anonymous")
+        val isExist = memberRepository.existsByEmail("anonymous@ahnlab.com")
 
         // then
         assertThat(isExist).isFalse()
     }
 
-    @DisplayName("성공-findByUsername")
+    @DisplayName("성공-findByEmail")
     @Test
-    fun `success-findByUsername`() {
+    fun `success-findByEmail`() {
         // when
-        val member = memberRepository.findByUsername("joonhee.song")
+        val member = memberRepository.findByEmail("joonhee.song@ahnlab.com")
 
         // then
         assertThat(member)
@@ -65,9 +65,9 @@ class MemberRepositoryTest : TestContainers() {
 
     @DisplayName("실패-findByUsername")
     @Test
-    fun `fail-findByUsername`() {
+    fun `fail-findByEmail`() {
         // when
-        val member = memberRepository.findByUsername("anonymous")
+        val member = memberRepository.findByEmail("anonymous@ahnlab.com")
 
         // then
         assertThat(member).isNull()
