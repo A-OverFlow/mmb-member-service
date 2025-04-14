@@ -1,6 +1,5 @@
 package com.mumulbo.member.controller
 
-import com.mumulbo.member.dto.request.MemberCheckRequest
 import com.mumulbo.member.dto.request.MemberCreateRequest
 import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.dto.response.MemberCheckResponse
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -31,8 +31,8 @@ class MemberController(
     }
 
     @GetMapping("/check")
-    fun checkMember(@RequestBody request: MemberCheckRequest): ResponseEntity<MemberCheckResponse> {
-        val response = memberService.checkMember(request)
+    fun checkMember(@RequestParam email: String): ResponseEntity<MemberCheckResponse> {
+        val response = memberService.checkMember(email)
         return ResponseEntity.ok(response)
     }
 

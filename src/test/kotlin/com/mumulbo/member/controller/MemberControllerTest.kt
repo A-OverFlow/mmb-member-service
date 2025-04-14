@@ -2,7 +2,6 @@ package com.mumulbo.member.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mumulbo.config.TestContainers
-import com.mumulbo.member.dto.request.MemberCheckRequest
 import com.mumulbo.member.dto.request.MemberCreateRequest
 import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.entity.Member
@@ -73,13 +72,10 @@ class MemberControllerTest : TestContainers() {
         val member = Member(name, email, username)
         memberRepository.save(member)
 
-        val request = MemberCheckRequest(email)
-
         // when // then
         mockMvc.perform(
             get("/api/v1/members/check")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))
+                .param("email", email)
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.id", `is`(member.id!!.toInt())))

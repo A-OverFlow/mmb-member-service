@@ -1,6 +1,5 @@
 package com.mumulbo.member.service
 
-import com.mumulbo.member.dto.request.MemberCheckRequest
 import com.mumulbo.member.dto.request.MemberCreateRequest
 import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.dto.response.MemberCheckResponse
@@ -27,8 +26,8 @@ class MemberService(
         return MemberCreateResponse.of(member)
     }
 
-    fun checkMember(request: MemberCheckRequest): MemberCheckResponse {
-        val member = memberRepository.findByEmail(request.email) ?: throw MemberNotFoundException()
+    fun checkMember(email: String): MemberCheckResponse {
+        val member = memberRepository.findByEmail(email) ?: throw MemberNotFoundException()
         return MemberCheckResponse(member.id!!)
     }
 
