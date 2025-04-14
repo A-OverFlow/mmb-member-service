@@ -1,5 +1,5 @@
 server:
-  port: ${APPLICATION_PORT}
+  port: ${MEMBER_SERVICE_PORT}
   servlet:
     encoding:
       charset: UTF-8
@@ -8,19 +8,20 @@ server:
 
 spring:
   application:
-    name: ${APPLICATION_NAME}
+    name: ${MEMBER_SERVICE_NAME}
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DATASOURCE_URL}
-    username: ${DATASOURCE_USERNAME}
-    password: ${DATASOURCE_PASSWORD}
+    url: ${MEMBER_SERVICE_DATASOURCE_URL}
+    username: ${MEMBER_SERVICE_DATASOURCE_USERNAME}
+    password: ${MEMBER_SERVICE_DATASOURCE_PASSWORD}
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create-drop
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: false
     open-in-view: false
     show-sql: false
