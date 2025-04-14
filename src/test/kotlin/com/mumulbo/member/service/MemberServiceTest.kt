@@ -1,7 +1,6 @@
 package com.mumulbo.member.service
 
 import com.mumulbo.config.TestContainers
-import com.mumulbo.member.dto.request.MemberCheckRequest
 import com.mumulbo.member.dto.request.MemberCreateRequest
 import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.entity.Member
@@ -73,10 +72,10 @@ class MemberServiceTest : TestContainers() {
     @Test
     fun `success-checkMember`() {
         // given
-        val request = MemberCheckRequest(member.email)
+        val email = member.email
 
         // when
-        val response = memberService.checkMember(request)
+        val response = memberService.checkMember(email)
 
         // then
         assertThat(response.id).isEqualTo(member.id)
@@ -86,10 +85,10 @@ class MemberServiceTest : TestContainers() {
     @Test
     fun `fail-checkMember`() {
         // given
-        val request = MemberCheckRequest("anonymous@ahnlab.com")
+        val email = "anonymous@ahnlab.com"
 
         // when // then
-        assertThatThrownBy { memberService.checkMember(request) }
+        assertThatThrownBy { memberService.checkMember(email) }
             .isInstanceOf(MemberNotFoundException::class.java)
     }
 
