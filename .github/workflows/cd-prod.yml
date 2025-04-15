@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '21'
-          distribution: 'temurin'
+          distribution: 'corretto'
 
       - name: Build Docker image
         run: docker build -t mumulbo/member-service:prod .
