@@ -56,7 +56,7 @@ class MemberControllerTest : TestContainers() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
-            .andExpect(status().isCreated)
+            .andExpect(status().isOk)
             .andExpect(jsonPath("$.name", `is`(request.name)))
             .andExpect(jsonPath("$.email", `is`(request.email)))
             .andExpect(jsonPath("$.username", `is`(request.username)))
