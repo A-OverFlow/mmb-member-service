@@ -1,5 +1,6 @@
 package com.mumulbo.member.service
 
+import com.mumulbo.member.dto.MemberDto
 import com.mumulbo.member.dto.request.MemberCreateRequest
 import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.dto.response.MemberCheckResponse
@@ -16,14 +17,10 @@ import org.springframework.stereotype.Service
 class MemberService(
     private val memberRepository: MemberRepository
 ) {
-    fun createMember(request: MemberCreateRequest): MemberCreateResponse {
-        if (memberRepository.existsByEmail(request.email)) {
-            throw MemberAlreadyExistsException()
-        }
-
-        val member = Member.of(request)
-        memberRepository.save(member)
-        return MemberCreateResponse.of(member)
+    fun createMember(request: MemberCreateRequest): MemberDto {
+        val member = (memberRepository.findByEmail(request.email)
+            ?: memberRepository.save(Member.of(request)))
+        return MemberDto.toDto(member)
     }
 
     fun checkMember(email: String): MemberCheckResponse {
@@ -31,9 +28,17 @@ class MemberService(
         return MemberCheckResponse(member.id!!)
     }
 
-    fun getMember(id: Long): MemberGetResponse {
-        val member = memberRepository.findById(id).orElseThrow { MemberNotFoundException() }
-        return MemberGetResponse.of(member)
+    fun getMember(email: String): MemberDto {
+        val member = (memberRepository.findByEmail(email)
+            ?: throw MemberNotFoundException())
+        return MemberDto.toDto(member)
+    }
+
+    fun getMember(id: Long): MemberDto {
+        val member = memberRepository.findById(id)
+            .orElseThrow { MemberNotFoundException() }
+
+        return MemberDto.toDto(member)
     }
 
     fun updateMember(id: Long, request: MemberUpdateRequest): MemberUpdateResponse {

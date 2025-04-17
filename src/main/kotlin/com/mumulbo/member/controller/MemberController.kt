@@ -1,5 +1,7 @@
 package com.mumulbo.member.controller
 
+import com.mumulbo.main
+import com.mumulbo.member.dto.MemberDto
 import com.mumulbo.member.dto.request.MemberCreateRequest
 import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.dto.response.MemberCheckResponse
@@ -25,9 +27,14 @@ class MemberController(
     private val memberService: MemberService
 ) {
     @PostMapping
-    fun createMember(@RequestBody request: MemberCreateRequest): ResponseEntity<MemberCreateResponse> {
+    fun createMember(@RequestBody request: MemberCreateRequest): ResponseEntity<MemberDto> {
         val response = memberService.createMember(request)
-        return ResponseEntity.status(HttpStatus.CREATED).body(response)
+        return ResponseEntity.ok(response)
+    }
+
+    @GetMapping
+    fun getMember(@RequestParam(name = "email") email: String): ResponseEntity<MemberDto> {
+        return ResponseEntity.ok(memberService.getMember(email))
     }
 
     @GetMapping("/check")
@@ -37,7 +44,7 @@ class MemberController(
     }
 
     @GetMapping("/{id}")
-    fun getMember(@PathVariable id: Long): ResponseEntity<MemberGetResponse> {
+    fun getMember(@PathVariable id: Long): ResponseEntity<MemberDto> {
         val response = memberService.getMember(id)
         return ResponseEntity.ok(response)
     }

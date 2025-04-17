@@ -57,17 +57,6 @@ class MemberServiceTest : TestContainers() {
             .contains(request.name, request.email, request.username)
     }
 
-    @DisplayName("실패-createMember")
-    @Test
-    fun `fail-createMember`() {
-        // given
-        val request = MemberCreateRequest("송준희", "joonhee.song@ahnlab.com", "joonhee.song")
-
-        // when // then
-        assertThatThrownBy { memberService.createMember(request) }
-            .isInstanceOf(MemberAlreadyExistsException::class.java)
-    }
-
     @DisplayName("성공-checkMember")
     @Test
     fun `success-checkMember`() {

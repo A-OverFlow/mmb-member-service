@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM eclipse-temurin:21-jdk AS builder
+FROM amazoncorretto:21 AS builder
 
 # 작업 디렉토리 설정
 WORKDIR /app
@@ -23,7 +23,7 @@ COPY src src
 RUN ./gradlew clean build -x test --no-daemon
 
 # Stage 2: Run
-FROM eclipse-temurin:21-jre
+FROM amazoncorretto:21
 
 # 작업 디렉토리 설정
 WORKDIR /app
