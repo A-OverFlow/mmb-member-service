@@ -1,20 +1,26 @@
 version: '3.8'
 services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MEMBER_SERVICE_DATASOURCE_PASSWORD}
+      MYSQL_DATABASE: aoverflow
+    ports:
+      - "3306:3306"
+
   member-service:
     build:
       dockerfile: ./Dockerfile
     container_name: mmb-member-service
     ports:
-      - 8080:${APPLICATION_PORT}
+      - 8080:${MEMBER_SERVICE_PORT}
     environment:
-      APPLICATION_PORT: ${APPLICATION_PORT}
-      APPLICATION_NAME: ${APPLICATION_NAME}
-      DATASOURCE_URL: ${DATASOURCE_URL}
-      DATASOURCE_USERNAME: ${DATASOURCE_USERNAME}
-      DATASOURCE_PASSWORD: ${DATASOURCE_PASSWORD}
-      REDIS_URL: ${REDIS_URL}
-      REDIS_PORT: ${REDIS_PORT}
-      SECRET_KEY: ${SECRET_KEY}
-      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
-      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
-#    restart: always
+      MEMBER_SERVICE_PORT: ${MEMBER_SERVICE_PORT}
+      MEMBER_SERVICE_NAME: ${MEMBER_SERVICE_NAME}
+      MEMBER_SERVICE_DATASOURCE_URL: ${MEMBER_SERVICE_DATASOURCE_URL}
+      MEMBER_SERVICE_DATASOURCE_USERNAME: ${MEMBER_SERVICE_DATASOURCE_USERNAME}
+      MEMBER_SERVICE_DATASOURCE_PASSWORD: ${MEMBER_SERVICE_DATASOURCE_PASSWORD}
+    depends_on:
+      - mysql
+    restart: unless-stopped
