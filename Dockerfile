@@ -1,35 +1,14 @@
-# Stage 1: Build
-FROM amazoncorretto:21 AS builder
-
-# 작업 디렉토리 설정
+# Build Stage
+FROM gradle:8.13-jdk21-corretto AS build
 WORKDIR /app
-
-# Gradle 캐시를 활용하기 위해 설정 파일 먼저 복사
-COPY gradlew ./
+COPY gradlew settings.gradle.kts build.gradle.kts ./
 COPY gradle gradle
-COPY settings.gradle.kts .
-COPY build.gradle.kts .
-
-# Gradle 실행 권한 추가
-RUN chmod +x gradlew
-
-# 종속성 캐시 생성 (빌드 속도 향상)
-RUN ./gradlew dependencies --no-daemon
-
-# 소스 코드 복사
+RUN ./gradlew dependencies --no-daemon || true
 COPY src src
-
-# 프로젝트 빌드 (테스트 제외)
 RUN ./gradlew clean build -x test --no-daemon
 
-# Stage 2: Run
-FROM amazoncorretto:21
-
-# 작업 디렉토리 설정
+# Run Stage
+FROM amazoncorretto:21-alpine
 WORKDIR /app
-
-# 빌드된 JAR 복사 (이름 패턴 수정)
-COPY --from=builder /app/build/libs/*.jar /app/member-service.jar
-
-# 애플리케이션 실행
-ENTRYPOINT ["java", "-jar", "/app/member-service.jar"]
+COPY --from=build /app/build/libs/* member-service.jar
+ENTRYPOINT ["java", "-jar", "member-service.jar"]
