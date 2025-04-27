@@ -1,0 +1,6 @@
+services:
+  member-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: member-service:local
