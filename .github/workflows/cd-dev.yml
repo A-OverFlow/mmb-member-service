@@ -10,6 +10,7 @@ jobs:
     environment: dev
 
     steps:
+      # Build Stage
       - name: checkout source code
         uses: actions/checkout@v4
 
@@ -30,12 +31,12 @@ jobs:
           push: true
           tags: mumulbo/member-service:dev
 
+      # Deploy Stage
       - name: Create .env locally
         run: |
-          echo "현재 경로는 $(pwd)입니다."
           echo "APPLICATION_PORT=${{ vars.APPLICATION_PORT }}" > .env
           echo "APPLICATION_NAME=${{ vars.APPLICATION_NAME }}" >> .env
-          echo "DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}" > .env
+          echo "DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}" >> .env
           echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "DB_HOST=${{ vars.DB_HOST }}" >> .env
@@ -47,16 +48,14 @@ jobs:
           echo "LOG_ROOT_LEVEL=${{ vars.LOG_ROOT_LEVEL }}" >> .env
           echo "LOG_JPA_LEVEL=${{ vars.LOG_JPA_LEVEL }}" >> .env
 
-      - name: Copy docker-compose.yml and .env to EC2
+      - name: Copy .env and docker-compose.yml to EC2
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
-          source: |
-            docker-compose.yml
-            .env
-          target: /home/ec2-user/deploy/member-service
+          source: .env, docker-compose.yml
+          target: ${{ secrets.TARGET_FOLDER }}
 
       - name: SSH to EC2 and deploy
         uses: appleboy/ssh-action@v0.1.10
@@ -65,7 +64,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            cd /home/ec2-user/deploy/member-service
+            cd ${{ secrets.TARGET_FOLDER }}
             docker pull mumulbo/member-service:dev
             docker-compose down
             docker-compose up -d
