@@ -3,6 +3,7 @@ FROM gradle:8.13-jdk21-corretto AS build
 WORKDIR /app
 COPY gradlew settings.gradle.kts build.gradle.kts ./
 COPY gradle gradle
+RUN chmod +x gradlew
 RUN ./gradlew dependencies --no-daemon || true
 COPY src src
 RUN ./gradlew clean build -x test --no-daemon
