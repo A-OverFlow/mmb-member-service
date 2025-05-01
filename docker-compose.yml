@@ -15,10 +15,10 @@ services:
       - external-net
 
   member-service:
-    image: mumulbo/member-service:dev
-    container_name: member-service
+    image: ${DOCKER_IMAGE}:dev
+    container_name: ${APPLICATION_NAME}
     ports:
-      - "${APPLICATION_PORT}:8082"
+      - "${APPLICATION_PORT}:${APPLICATION_PORT}"
     env_file:
       - .env
     networks:
@@ -33,4 +33,4 @@ volumes:
 networks:
   external-net:
     external: true
-    name: backend-net
+    name: ${MMB_DOCKER_NETWORK}

@@ -3,4 +3,4 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: member-service:local
+    image: ${DOCKER_IMAGE}:local
