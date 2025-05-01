@@ -73,6 +73,7 @@ jobs:
           echo "LOG_ROOT_LEVEL=${{ vars.LOG_ROOT_LEVEL }}" >> .env
           echo "LOG_JPA_LEVEL=${{ vars.LOG_JPA_LEVEL }}" >> .env
           echo "MMB_DOCKER_NETWORK=${{ vars.MMB_DOCKER_NETWORK }}" >> .env
+          echo "DOCKER_IMAGE=${{ vars.DOCKER_IMAGE }}" >> .env
 
       - name: 생성한 .env 파일 EC2 서버로 복사
         run: |
