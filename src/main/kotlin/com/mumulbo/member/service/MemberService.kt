@@ -1,9 +1,9 @@
 package com.mumulbo.member.service
 
-import com.mumulbo.member.dto.MemberDto
 import com.mumulbo.member.dto.request.MemberCreateOrGetRequest
 import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.dto.response.MemberCreateOrGetResponse
+import com.mumulbo.member.dto.response.MemberGetResponse
 import com.mumulbo.member.dto.response.MemberUpdateResponse
 import com.mumulbo.member.entity.Member
 import com.mumulbo.member.exception.MemberNotFoundException
@@ -20,17 +20,9 @@ class MemberService(
         return MemberCreateOrGetResponse(member.id!!)
     }
 
-    fun getMember(email: String): MemberDto {
-        val member = (memberRepository.findByEmail(email)
-            ?: throw MemberNotFoundException())
-        return MemberDto.toDto(member)
-    }
-
-    fun getMember(id: Long): MemberDto {
-        val member = memberRepository.findById(id)
-            .orElseThrow { MemberNotFoundException() }
-
-        return MemberDto.toDto(member)
+    fun getMember(id: Long): MemberGetResponse {
+        val member = memberRepository.findById(id).orElseThrow { MemberNotFoundException() }
+        return MemberGetResponse.of(member)
     }
 
     fun updateMember(id: Long, request: MemberUpdateRequest): MemberUpdateResponse {

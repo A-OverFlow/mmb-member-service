@@ -9,6 +9,7 @@ import com.mumulbo.member.enums.Provider
 import com.mumulbo.member.repository.MemberRepository
 import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,6 +38,19 @@ class MemberControllerTest : TestContainers() {
     @Autowired
     private lateinit var objectMapper: ObjectMapper
 
+    private lateinit var member: Member
+
+    @BeforeEach
+    fun init() {
+        // given
+        val provider = Provider.GOOGLE
+        val providerId = "012345678901234567890"
+        val name = "송준희"
+        val email = "mike.urssu@gmail.com"
+        val profile = "https://lh3.googleusercontent.com/a/ACg8ocLMTF71D62J-rh67V_H4T61l09FpgpHwepfAPy0VFTSd9bwSg=s96-c"
+        member = memberRepository.save(Member(provider, providerId, name, email, profile))
+    }
+
     @AfterEach
     fun cleansing() {
         memberRepository.deleteAllInBatch()
@@ -63,25 +77,18 @@ class MemberControllerTest : TestContainers() {
             .andExpect(jsonPath("$.id").isNumber)
     }
 
-    @DisplayName("성공-getMember")
+    @DisplayName("성공-getMyInfo")
     @Test
-    fun `success-getMember`() {
-        // given
-        val provider = Provider.GOOGLE
-        val providerId = "012345678901234567890"
-        val name = "Joon Hee Song"
-        val email = "joonhee.song@ahnlab.com"
-        val profile = "https://lh3.googleusercontent.com/a/ACg8ocLMTF71D62J-rh67V_H4T61l09FpgpHwepfAPy0VFTSd9bwSg=s96-c"
-        val member = Member(provider, providerId, name, email, profile)
-        memberRepository.save(member)
-
+    fun `success-getMyInfo`() {
         // when // then
         mockMvc.perform(
-            get("/api/v1/members/{id}", member.id)
+            get("/api/v1/members/me")
+                .header("X-User-Id", member.id)
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.name", `is`(member.name)))
             .andExpect(jsonPath("$.email", `is`(member.email)))
+            .andExpect(jsonPath("$.profile", `is`(member.profile)))
     }
 
     @DisplayName("성공-updateMember")

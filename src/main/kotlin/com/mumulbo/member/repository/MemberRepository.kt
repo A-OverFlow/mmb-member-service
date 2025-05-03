@@ -8,8 +8,4 @@ import org.springframework.stereotype.Repository
 @Repository
 interface MemberRepository : JpaRepository<Member, Long> {
     fun findByProviderAndProviderId(provider: Provider, providerId: String): Member?
-
-    fun existsByEmail(email: String): Boolean
-
-    fun findByEmail(email: String): Member?
 }

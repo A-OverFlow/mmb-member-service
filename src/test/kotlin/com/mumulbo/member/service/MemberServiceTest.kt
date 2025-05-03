@@ -33,8 +33,8 @@ class MemberServiceTest : TestContainers() {
         // given
         val provider = Provider.GOOGLE
         val providerId = "012345678901234567890"
-        val name = "Joon Hee Song"
-        val email = "joonhee.song@ahnlab.com"
+        val name = "송준희"
+        val email = "mike.urssu@gmail.com"
         val profile = "https://lh3.googleusercontent.com/a/ACg8ocLMTF71D62J-rh67V_H4T61l09FpgpHwepfAPy0VFTSd9bwSg=s96-c"
         member = memberRepository.save(Member(provider, providerId, name, email, profile))
     }
@@ -44,7 +44,7 @@ class MemberServiceTest : TestContainers() {
         memberRepository.deleteAllInBatch()
     }
 
-    @DisplayName("성공-createMember")
+    @DisplayName("성공-createOrGetMember")
     @Test
     fun `success-createMember`() {
         // given
@@ -73,8 +73,8 @@ class MemberServiceTest : TestContainers() {
 
         // then
         assertThat(response)
-            .extracting("name", "email")
-            .contains(member.name, member.email)
+            .extracting("name", "email", "profile")
+            .contains(member.name, member.email, member.profile)
     }
 
     @DisplayName("실패-getMember")

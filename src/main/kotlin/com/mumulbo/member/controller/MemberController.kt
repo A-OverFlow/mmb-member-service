@@ -1,9 +1,9 @@
 package com.mumulbo.member.controller
 
-import com.mumulbo.member.dto.MemberDto
 import com.mumulbo.member.dto.request.MemberCreateOrGetRequest
 import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.dto.response.MemberCreateOrGetResponse
+import com.mumulbo.member.dto.response.MemberGetResponse
 import com.mumulbo.member.dto.response.MemberUpdateResponse
 import com.mumulbo.member.service.MemberService
 import org.springframework.http.ResponseEntity
@@ -29,16 +29,7 @@ class MemberController(
     }
 
     @GetMapping("/me")
-    fun getMyInfo(@RequestHeader("X-User-Id") userId: String): ResponseEntity<MemberDto> {
-        // todo 일단은 x-user-id가 이메일이지만 db에 저장된 user id로 변경해야함
-        //  user id로 검색하는 함수가 필요함
-        println("@GetMapping(\"/me\")")
-        println(userId)
-        return ResponseEntity.ok(memberService.getMember(userId))
-    }
-
-    @GetMapping("/{id}")
-    fun getMember(@PathVariable id: Long): ResponseEntity<MemberDto> {
+    fun getMyInfo(@RequestHeader("X-User-Id") id: Long): ResponseEntity<MemberGetResponse> {
         val response = memberService.getMember(id)
         return ResponseEntity.ok(response)
     }
