@@ -1,5 +1,5 @@
 package com.mumulbo.member.dto.response
 
-class MemberCheckResponse(
+class MemberCreateOrGetResponse(
     val id: Long
 )

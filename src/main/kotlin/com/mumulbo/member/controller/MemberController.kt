@@ -1,9 +1,9 @@
 package com.mumulbo.member.controller
 
 import com.mumulbo.member.dto.MemberDto
-import com.mumulbo.member.dto.request.MemberCreateRequest
+import com.mumulbo.member.dto.request.MemberCreateOrGetRequest
 import com.mumulbo.member.dto.request.MemberUpdateRequest
-import com.mumulbo.member.dto.response.MemberCheckResponse
+import com.mumulbo.member.dto.response.MemberCreateOrGetResponse
 import com.mumulbo.member.dto.response.MemberUpdateResponse
 import com.mumulbo.member.service.MemberService
 import org.springframework.http.ResponseEntity
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -23,6 +22,12 @@ import org.springframework.web.bind.annotation.RestController
 class MemberController(
     private val memberService: MemberService
 ) {
+    @PostMapping
+    fun createOrGetMember(@RequestBody request: MemberCreateOrGetRequest): ResponseEntity<MemberCreateOrGetResponse> {
+        val response = memberService.createOrGetMember(request)
+        return ResponseEntity.ok(response)
+    }
+
     @GetMapping("/me")
     fun getMyInfo(@RequestHeader("X-User-Id") userId: String): ResponseEntity<MemberDto> {
         // todo 일단은 x-user-id가 이메일이지만 db에 저장된 user id로 변경해야함
@@ -30,23 +35,6 @@ class MemberController(
         println("@GetMapping(\"/me\")")
         println(userId)
         return ResponseEntity.ok(memberService.getMember(userId))
-    }
-
-    @PostMapping
-    fun createMember(@RequestBody request: MemberCreateRequest): ResponseEntity<MemberDto> {
-        val response = memberService.createMember(request)
-        return ResponseEntity.ok(response)
-    }
-
-    @GetMapping
-    fun getMember(@RequestParam(name = "email") email: String): ResponseEntity<MemberDto> {
-        return ResponseEntity.ok(memberService.getMember(email))
-    }
-
-    @GetMapping("/check")
-    fun checkMember(@RequestParam email: String): ResponseEntity<MemberCheckResponse> {
-        val response = memberService.checkMember(email)
-        return ResponseEntity.ok(response)
     }
 
     @GetMapping("/{id}")

@@ -1,9 +1,8 @@
 package com.mumulbo.member.entity
 
-import com.mumulbo.member.dto.request.MemberCreateRequest
+import com.mumulbo.member.dto.request.MemberCreateOrGetRequest
 import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.enums.Provider
-import com.mumulbo.member.enums.Role
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -36,11 +35,8 @@ class Member(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
 
-    @Enumerated(EnumType.STRING)
-    val role: Role = Role.MEMBER
-
     companion object {
-        fun of(request: MemberCreateRequest) =
+        fun of(request: MemberCreateOrGetRequest) =
             Member(request.provider, request.providerId, request.name, request.email, request.profile)
     }
 

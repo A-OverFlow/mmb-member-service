@@ -2,7 +2,7 @@ package com.mumulbo.member.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mumulbo.config.TestContainers
-import com.mumulbo.member.dto.request.MemberCreateRequest
+import com.mumulbo.member.dto.request.MemberCreateOrGetRequest
 import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.entity.Member
 import com.mumulbo.member.enums.Provider
@@ -42,16 +42,16 @@ class MemberControllerTest : TestContainers() {
         memberRepository.deleteAllInBatch()
     }
 
-    @DisplayName("성공-createMember")
+    @DisplayName("성공-createOrGetMember")
     @Test
-    fun `success-createMember`() {
+    fun `success-createOrGetMember`() {
         // given
         val provider = Provider.GOOGLE
         val providerId = "012345678901234567890"
-        val name = "Joon Hee Song"
-        val email = "joonhee.song@ahnlab.com"
+        val name = "송준희"
+        val email = "mike.urssu@gmail.com"
         val profile = "https://lh3.googleusercontent.com/a/ACg8ocLMTF71D62J-rh67V_H4T61l09FpgpHwepfAPy0VFTSd9bwSg=s96-c"
-        val request = MemberCreateRequest(provider, providerId, name, email, profile)
+        val request = MemberCreateOrGetRequest(provider, providerId, name, email, profile)
 
         // when // then
         mockMvc.perform(
@@ -60,29 +60,7 @@ class MemberControllerTest : TestContainers() {
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.name", `is`(request.name)))
-            .andExpect(jsonPath("$.email", `is`(request.email)))
-    }
-
-    @DisplayName("성공-checkMember")
-    @Test
-    fun `success-checkMember`() {
-        // given
-        val provider = Provider.GOOGLE
-        val providerId = "012345678901234567890"
-        val name = "Joon Hee Song"
-        val email = "joonhee.song@ahnlab.com"
-        val profile = "https://lh3.googleusercontent.com/a/ACg8ocLMTF71D62J-rh67V_H4T61l09FpgpHwepfAPy0VFTSd9bwSg=s96-c"
-        val member = Member(provider, providerId, name, email, profile)
-        memberRepository.save(member)
-
-        // when // then
-        mockMvc.perform(
-            get("/api/v1/members/check")
-                .param("email", email)
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.id", `is`(member.id!!.toInt())))
+            .andExpect(jsonPath("$.id").isNumber)
     }
 
     @DisplayName("성공-getMember")

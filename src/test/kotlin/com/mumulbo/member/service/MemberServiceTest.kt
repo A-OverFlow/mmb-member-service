@@ -1,7 +1,7 @@
 package com.mumulbo.member.service
 
 import com.mumulbo.config.TestContainers
-import com.mumulbo.member.dto.request.MemberCreateRequest
+import com.mumulbo.member.dto.request.MemberCreateOrGetRequest
 import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.entity.Member
 import com.mumulbo.member.enums.Provider
@@ -50,42 +50,16 @@ class MemberServiceTest : TestContainers() {
         // given
         val provider = Provider.GOOGLE
         val providerId = "012345678901234567890"
-        val name = "Joon Hee Song"
-        val email = "joonhee.song@ahnlab.com"
+        val name = "송준희"
+        val email = "mike.urssu@gmail.com"
         val profile = "https://lh3.googleusercontent.com/a/ACg8ocLMTF71D62J-rh67V_H4T61l09FpgpHwepfAPy0VFTSd9bwSg=s96-c"
-        val request = MemberCreateRequest(provider, providerId, name, email, profile)
+        val request = MemberCreateOrGetRequest(provider, providerId, name, email, profile)
 
         // when
-        val response = memberService.createMember(request)
+        val response = memberService.createOrGetMember(request)
 
         // then
-        assertThat(response)
-            .extracting("name", "email")
-            .contains(request.name, request.email)
-    }
-
-    @DisplayName("성공-checkMember")
-    @Test
-    fun `success-checkMember`() {
-        // given
-        val email = member.email
-
-        // when
-        val response = memberService.checkMember(email)
-
-        // then
-        assertThat(response.id).isEqualTo(member.id)
-    }
-
-    @DisplayName("실패-checkMember")
-    @Test
-    fun `fail-checkMember`() {
-        // given
-        val email = "anonymous@ahnlab.com"
-
-        // when // then
-        assertThatThrownBy { memberService.checkMember(email) }
-            .isInstanceOf(MemberNotFoundException::class.java)
+        assertThat(response.id).isPositive()
     }
 
     @DisplayName("성공-getMember")

@@ -34,6 +34,37 @@ class MemberRepositoryTest : TestContainers() {
         memberRepository.deleteAllInBatch()
     }
 
+    @DisplayName("성공-findByProviderAndProviderId")
+    @Test
+    fun `success-findByProviderAndProviderId`() {
+        // given
+        val provider = Provider.GOOGLE
+        val providerId = "012345678901234567890"
+
+        // when
+        val member = memberRepository.findByProviderAndProviderId(provider, providerId)
+
+        // then
+        assertThat(member)
+            .isNotNull
+            .extracting("name", "email", "profile")
+            .contains("송준희", "joonhee.song@ahnlab.com", "https://lh3.googleusercontent.com/a/ACg8ocLMTF71D62J-rh67V_H4T61l09FpgpHwepfAPy0VFTSd9bwSg=s96-c")
+    }
+
+    @DisplayName("실패-findByProviderAndProviderId")
+    @Test
+    fun `fail-findByProviderAndProviderId`() {
+        // given
+        val provider = Provider.KAKAO
+        val providerId = "012345678901234567890"
+
+        // when
+        val member = memberRepository.findByProviderAndProviderId(provider, providerId)
+
+        // then
+        assertThat(member).isNull()
+    }
+
     @DisplayName("성공-existsByUsername")
     @Test
     fun `success-existsByEmail`() {
