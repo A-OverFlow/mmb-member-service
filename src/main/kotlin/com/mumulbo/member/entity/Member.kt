@@ -11,6 +11,8 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import java.time.Clock
+import java.time.LocalDateTime
 
 @Entity
 @Table
@@ -26,18 +28,17 @@ class Member(
     val name: String,
 
     @field:Column
-    var email: String,
-
-    @field:Column
-    val profile: String
+    var email: String
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
 
+    val createdAt: LocalDateTime = LocalDateTime.now(Clock.systemDefaultZone())
+
     companion object {
         fun of(request: MemberCreateOrGetRequest) =
-            Member(request.provider, request.providerId, request.name, request.email, request.profile)
+            Member(request.provider, request.providerId, request.name, request.email)
     }
 
     fun update(request: MemberUpdateRequest) {

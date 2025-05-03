@@ -25,8 +25,7 @@ class MemberRepositoryTest : TestContainers() {
         val providerId = "012345678901234567890"
         val name = "송준희"
         val email = "mike.urssu@gmail.com"
-        val profile = "https://lh3.googleusercontent.com/a/ACg8ocLMTF71D62J-rh67V_H4T61l09FpgpHwepfAPy0VFTSd9bwSg=s96-c"
-        memberRepository.save(Member(provider, providerId, name, email, profile))
+        memberRepository.save(Member(provider, providerId, name, email))
     }
 
     @AfterEach
@@ -47,8 +46,8 @@ class MemberRepositoryTest : TestContainers() {
         // then
         assertThat(member)
             .isNotNull
-            .extracting("name", "email", "profile")
-            .contains("송준희", "mike.urssu@gmail.com", "https://lh3.googleusercontent.com/a/ACg8ocLMTF71D62J-rh67V_H4T61l09FpgpHwepfAPy0VFTSd9bwSg=s96-c")
+            .extracting("name", "email")
+            .contains("송준희", "mike.urssu@gmail.com")
     }
 
     @DisplayName("실패-findByProviderAndProviderId")
