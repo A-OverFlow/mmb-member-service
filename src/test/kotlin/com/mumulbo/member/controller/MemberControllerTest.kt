@@ -108,20 +108,13 @@ class MemberControllerTest : TestContainers() {
             .andExpect(jsonPath("$.email", `is`(request.email)))
     }
 
-    @DisplayName("성공-deleteMember")
+    @DisplayName("성공-deleteMyInfo")
     @Test
-    fun `success-deleteMember`() {
-        // given
-        val provider = Provider.GOOGLE
-        val providerId = "012345678901234567890"
-        val name = "Joon Hee Song"
-        val email = "joonhee.song@ahnlab.com"
-        val profile = "https://lh3.googleusercontent.com/a/ACg8ocLMTF71D62J-rh67V_H4T61l09FpgpHwepfAPy0VFTSd9bwSg=s96-c"
-        val member = memberRepository.save(Member(provider, providerId, name, email, profile))
-
+    fun `success-deleteMyInfo`() {
         // when // then
         mockMvc.perform(
-            delete("/api/v1/members/{id}", member.id)
+            delete("/api/v1/members/me")
+                .header("X-User-Id", member.id)
         )
             .andExpect(status().isNoContent)
     }

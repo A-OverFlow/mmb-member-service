@@ -9,7 +9,6 @@ import com.mumulbo.member.service.MemberService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -43,8 +42,8 @@ class MemberController(
         return ResponseEntity.ok(response)
     }
 
-    @DeleteMapping("/{id}")
-    fun deleteMember(@PathVariable id: Long): ResponseEntity<Void> {
+    @DeleteMapping("/me")
+    fun deleteMyInfo(@RequestHeader("X-User-Id") id: Long): ResponseEntity<Void> {
         memberService.deleteMember(id)
         return ResponseEntity.noContent().build()
     }
