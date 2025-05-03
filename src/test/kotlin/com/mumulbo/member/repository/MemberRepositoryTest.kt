@@ -2,6 +2,7 @@ package com.mumulbo.member.repository
 
 import com.mumulbo.config.TestContainers
 import com.mumulbo.member.entity.Member
+import com.mumulbo.member.enums.Provider
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -20,10 +21,12 @@ class MemberRepositoryTest : TestContainers() {
     @BeforeEach
     fun init() {
         // given
+        val provider = Provider.GOOGLE
+        val providerId = "012345678901234567890"
         val name = "송준희"
         val email = "joonhee.song@ahnlab.com"
-        val username = "joonhee.song"
-        memberRepository.save(Member(name, email, username))
+        val profile = "https://lh3.googleusercontent.com/a/ACg8ocLMTF71D62J-rh67V_H4T61l09FpgpHwepfAPy0VFTSd9bwSg=s96-c"
+        memberRepository.save(Member(provider, providerId, name, email, profile))
     }
 
     @AfterEach
@@ -59,8 +62,8 @@ class MemberRepositoryTest : TestContainers() {
 
         // then
         assertThat(member)
-            .extracting("name", "email", "username")
-            .contains("송준희", "joonhee.song@ahnlab.com", "joonhee.song")
+            .extracting("name", "email")
+            .contains("송준희", "joonhee.song@ahnlab.com")
     }
 
     @DisplayName("실패-findByUsername")

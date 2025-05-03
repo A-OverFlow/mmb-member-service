@@ -4,7 +4,7 @@ import com.mumulbo.config.TestContainers
 import com.mumulbo.member.dto.request.MemberCreateRequest
 import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.entity.Member
-import com.mumulbo.member.exception.MemberAlreadyExistsException
+import com.mumulbo.member.enums.Provider
 import com.mumulbo.member.exception.MemberNotFoundException
 import com.mumulbo.member.repository.MemberRepository
 import org.assertj.core.api.Assertions.assertThat
@@ -31,10 +31,12 @@ class MemberServiceTest : TestContainers() {
     @BeforeEach
     fun init() {
         // given
-        val name = "송준희"
+        val provider = Provider.GOOGLE
+        val providerId = "012345678901234567890"
+        val name = "Joon Hee Song"
         val email = "joonhee.song@ahnlab.com"
-        val username = "joonhee.song"
-        member = memberRepository.save(Member(name, email, username))
+        val profile = "https://lh3.googleusercontent.com/a/ACg8ocLMTF71D62J-rh67V_H4T61l09FpgpHwepfAPy0VFTSd9bwSg=s96-c"
+        member = memberRepository.save(Member(provider, providerId, name, email, profile))
     }
 
     @AfterEach
@@ -46,15 +48,20 @@ class MemberServiceTest : TestContainers() {
     @Test
     fun `success-createMember`() {
         // given
-        val request = MemberCreateRequest("송준희2", "joonhee.song2@ahnlab.com", "joonhee.song2")
+        val provider = Provider.GOOGLE
+        val providerId = "012345678901234567890"
+        val name = "Joon Hee Song"
+        val email = "joonhee.song@ahnlab.com"
+        val profile = "https://lh3.googleusercontent.com/a/ACg8ocLMTF71D62J-rh67V_H4T61l09FpgpHwepfAPy0VFTSd9bwSg=s96-c"
+        val request = MemberCreateRequest(provider, providerId, name, email, profile)
 
         // when
         val response = memberService.createMember(request)
 
         // then
         assertThat(response)
-            .extracting("name", "email", "username")
-            .contains(request.name, request.email, request.username)
+            .extracting("name", "email")
+            .contains(request.name, request.email)
     }
 
     @DisplayName("성공-checkMember")
@@ -92,8 +99,8 @@ class MemberServiceTest : TestContainers() {
 
         // then
         assertThat(response)
-            .extracting("name", "email", "username")
-            .contains(member.name, member.email, member.username)
+            .extracting("name", "email")
+            .contains(member.name, member.email)
     }
 
     @DisplayName("실패-getMember")
@@ -112,16 +119,13 @@ class MemberServiceTest : TestContainers() {
     fun `success-updateMember`() {
         // given
         val name = "송준희2"
-        val username = "joonhee.song2"
-        val request = MemberUpdateRequest(name, username)
+        val request = MemberUpdateRequest(name)
 
         // when
         val response = memberService.updateMember(member.id!!, request)
 
         // then
-        assertThat(response)
-            .extracting("name", "username")
-            .contains(name, username)
+        assertThat(response.name).isEqualTo(name)
     }
 
     @DisplayName("실패-updateMember")
@@ -129,8 +133,7 @@ class MemberServiceTest : TestContainers() {
     fun `fail-updateMember`() {
         // given
         val name = "송준희2"
-        val username = "joonhee.song2"
-        val request = MemberUpdateRequest(name, username)
+        val request = MemberUpdateRequest(name)
 
         // when // then
         assertThatThrownBy { memberService.updateMember(999_999L, request) }
