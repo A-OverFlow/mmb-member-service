@@ -91,28 +91,21 @@ class MemberControllerTest : TestContainers() {
             .andExpect(jsonPath("$.profile", `is`(member.profile)))
     }
 
-    @DisplayName("성공-updateMember")
+    @DisplayName("성공-updateMyInfo")
     @Test
-    fun `success-updateMember`() {
+    fun `success-updateMyInfo`() {
         // given
-        val provider = Provider.GOOGLE
-        val providerId = "012345678901234567890"
-        val name = "Joon Hee Song"
-        val email = "joonhee.song@ahnlab.com"
-        val profile = "https://lh3.googleusercontent.com/a/ACg8ocLMTF71D62J-rh67V_H4T61l09FpgpHwepfAPy0VFTSd9bwSg=s96-c"
-        val member = Member(provider, providerId, name, email, profile)
-        memberRepository.save(member)
-
-        val request = MemberUpdateRequest("송준희2")
+        val request = MemberUpdateRequest("mike.urssu2@gmail.com")
 
         // when // then
         mockMvc.perform(
-            put("/api/v1/members/{id}", member.id)
+            put("/api/v1/members/me")
+                .header("X-User-Id", member.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.name", `is`(request.name)))
+            .andExpect(jsonPath("$.email", `is`(request.email)))
     }
 
     @DisplayName("성공-deleteMember")

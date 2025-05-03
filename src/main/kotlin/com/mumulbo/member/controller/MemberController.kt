@@ -34,9 +34,9 @@ class MemberController(
         return ResponseEntity.ok(response)
     }
 
-    @PutMapping("/{id}")
-    fun updateMember(
-        @PathVariable id: Long,
+    @PutMapping("/me")
+    fun updateMyInfo(
+        @RequestHeader("X-User-Id") id: Long,
         @RequestBody request: MemberUpdateRequest
     ): ResponseEntity<MemberUpdateResponse> {
         val response = memberService.updateMember(id, request)

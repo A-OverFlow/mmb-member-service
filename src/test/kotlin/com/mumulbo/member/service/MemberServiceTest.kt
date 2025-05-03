@@ -92,22 +92,20 @@ class MemberServiceTest : TestContainers() {
     @Test
     fun `success-updateMember`() {
         // given
-        val name = "송준희2"
-        val request = MemberUpdateRequest(name)
+        val request = MemberUpdateRequest("mike.urssu2@gmail.com")
 
         // when
         val response = memberService.updateMember(member.id!!, request)
 
         // then
-        assertThat(response.name).isEqualTo(name)
+        assertThat(response.email).isEqualTo(request.email)
     }
 
     @DisplayName("실패-updateMember")
     @Test
     fun `fail-updateMember`() {
         // given
-        val name = "송준희2"
-        val request = MemberUpdateRequest(name)
+        val request = MemberUpdateRequest("mike.urssu2@gmail.com")
 
         // when // then
         assertThatThrownBy { memberService.updateMember(999_999L, request) }

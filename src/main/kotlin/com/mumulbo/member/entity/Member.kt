@@ -23,10 +23,10 @@ class Member(
     val providerId: String,
 
     @field:Column
-    var name: String,
+    val name: String,
 
     @field:Column
-    val email: String,
+    var email: String,
 
     @field:Column
     val profile: String
@@ -41,6 +41,6 @@ class Member(
     }
 
     fun update(request: MemberUpdateRequest) {
-        this.name = request.name
+        this.email = request.email
     }
 }

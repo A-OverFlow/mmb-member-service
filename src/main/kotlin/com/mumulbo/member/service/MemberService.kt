@@ -29,7 +29,7 @@ class MemberService(
         val member = memberRepository.findById(id).orElseThrow { MemberNotFoundException() }
         member.update(request)
         memberRepository.save(member)
-        return MemberUpdateResponse.of(member)
+        return MemberUpdateResponse(member.email)
     }
 
     fun deleteMember(id: Long) {
