@@ -28,7 +28,10 @@ class Member(
     val name: String,
 
     @field:Column
-    var email: String
+    var email: String,
+
+    @field:Column
+    val profile: String
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,7 +41,7 @@ class Member(
 
     companion object {
         fun of(request: MemberCreateOrGetRequest) =
-            Member(request.provider, request.providerId, request.name, request.email)
+            Member(request.provider, request.providerId, request.name, request.email, request.profile)
     }
 
     fun update(request: MemberUpdateRequest) {
