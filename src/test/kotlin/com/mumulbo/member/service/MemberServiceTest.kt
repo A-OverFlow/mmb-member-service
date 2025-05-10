@@ -1,10 +1,10 @@
 package com.mumulbo.member.service
 
 import com.mumulbo.config.TestContainers
-import com.mumulbo.member.dto.request.MemberCreateRequest
+import com.mumulbo.member.dto.request.MemberCreateOrGetRequest
 import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.entity.Member
-import com.mumulbo.member.exception.MemberAlreadyExistsException
+import com.mumulbo.member.enums.Provider
 import com.mumulbo.member.exception.MemberNotFoundException
 import com.mumulbo.member.repository.MemberRepository
 import org.assertj.core.api.Assertions.assertThat
@@ -31,10 +31,12 @@ class MemberServiceTest : TestContainers() {
     @BeforeEach
     fun init() {
         // given
+        val provider = Provider.GOOGLE
+        val providerId = "012345678901234567890"
         val name = "송준희"
-        val email = "joonhee.song@ahnlab.com"
-        val username = "joonhee.song"
-        member = memberRepository.save(Member(name, email, username))
+        val email = "mike.urssu@gmail.com"
+        val profile = "https://lh3.googleusercontent.com/a/abcdefg"
+        member = memberRepository.save(Member(provider, providerId, name, email, profile))
     }
 
     @AfterEach
@@ -42,43 +44,22 @@ class MemberServiceTest : TestContainers() {
         memberRepository.deleteAllInBatch()
     }
 
-    @DisplayName("성공-createMember")
+    @DisplayName("성공-createOrGetMember")
     @Test
     fun `success-createMember`() {
         // given
-        val request = MemberCreateRequest("송준희2", "joonhee.song2@ahnlab.com", "joonhee.song2")
+        val provider = Provider.GOOGLE
+        val providerId = "012345678901234567890"
+        val name = "송준희"
+        val email = "mike.urssu@gmail.com"
+        val profile = "https://lh3.googleusercontent.com/a/abcdefg"
+        val request = MemberCreateOrGetRequest(provider, providerId, name, email, profile)
 
         // when
-        val response = memberService.createMember(request)
+        val response = memberService.createOrGetMember(request)
 
         // then
-        assertThat(response)
-            .extracting("name", "email", "username")
-            .contains(request.name, request.email, request.username)
-    }
-
-    @DisplayName("성공-checkMember")
-    @Test
-    fun `success-checkMember`() {
-        // given
-        val email = member.email
-
-        // when
-        val response = memberService.checkMember(email)
-
-        // then
-        assertThat(response.id).isEqualTo(member.id)
-    }
-
-    @DisplayName("실패-checkMember")
-    @Test
-    fun `fail-checkMember`() {
-        // given
-        val email = "anonymous@ahnlab.com"
-
-        // when // then
-        assertThatThrownBy { memberService.checkMember(email) }
-            .isInstanceOf(MemberNotFoundException::class.java)
+        assertThat(response.id).isPositive()
     }
 
     @DisplayName("성공-getMember")
@@ -92,8 +73,8 @@ class MemberServiceTest : TestContainers() {
 
         // then
         assertThat(response)
-            .extracting("name", "email", "username")
-            .contains(member.name, member.email, member.username)
+            .extracting("name", "email", "profile")
+            .contains(member.name, member.email, member.profile)
     }
 
     @DisplayName("실패-getMember")
@@ -111,26 +92,20 @@ class MemberServiceTest : TestContainers() {
     @Test
     fun `success-updateMember`() {
         // given
-        val name = "송준희2"
-        val username = "joonhee.song2"
-        val request = MemberUpdateRequest(name, username)
+        val request = MemberUpdateRequest("mike.urssu2@gmail.com")
 
         // when
         val response = memberService.updateMember(member.id!!, request)
 
         // then
-        assertThat(response)
-            .extracting("name", "username")
-            .contains(name, username)
+        assertThat(response.email).isEqualTo(request.email)
     }
 
     @DisplayName("실패-updateMember")
     @Test
     fun `fail-updateMember`() {
         // given
-        val name = "송준희2"
-        val username = "joonhee.song2"
-        val request = MemberUpdateRequest(name, username)
+        val request = MemberUpdateRequest("mike.urssu2@gmail.com")
 
         // when // then
         assertThatThrownBy { memberService.updateMember(999_999L, request) }

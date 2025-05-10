@@ -2,12 +2,14 @@ package com.mumulbo.member.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mumulbo.config.TestContainers
-import com.mumulbo.member.dto.request.MemberCreateRequest
+import com.mumulbo.member.dto.request.MemberCreateOrGetRequest
 import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.entity.Member
+import com.mumulbo.member.enums.Provider
 import com.mumulbo.member.repository.MemberRepository
 import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,19 +38,34 @@ class MemberControllerTest : TestContainers() {
     @Autowired
     private lateinit var objectMapper: ObjectMapper
 
+    private lateinit var member: Member
+
+    @BeforeEach
+    fun init() {
+        // given
+        val provider = Provider.GOOGLE
+        val providerId = "012345678901234567890"
+        val name = "송준희"
+        val email = "mike.urssu@gmail.com"
+        val profile = "https://lh3.googleusercontent.com/a/abcdefg"
+        member = memberRepository.save(Member(provider, providerId, name, email, profile))
+    }
+
     @AfterEach
     fun cleansing() {
         memberRepository.deleteAllInBatch()
     }
 
-    @DisplayName("성공-createMember")
+    @DisplayName("성공-createOrGetMember")
     @Test
-    fun `success-createMember`() {
+    fun `success-createOrGetMember`() {
         // given
-        val name = "Joon Hee Song"
-        val email = "joonhee.song@ahnlab.com"
-        val username = "joonhee.song"
-        val request = MemberCreateRequest(name, email, username)
+        val provider = Provider.GOOGLE
+        val providerId = "012345678901234567890"
+        val name = "송준희"
+        val email = "mike.urssu@gmail.com"
+        val profile = "https://lh3.googleusercontent.com/a/abcdefg"
+        val request = MemberCreateOrGetRequest(provider, providerId, name, email, profile)
 
         // when // then
         mockMvc.perform(
@@ -57,85 +74,47 @@ class MemberControllerTest : TestContainers() {
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.name", `is`(request.name)))
-            .andExpect(jsonPath("$.email", `is`(request.email)))
-            .andExpect(jsonPath("$.username", `is`(request.username)))
+            .andExpect(jsonPath("$.id").isNumber)
     }
 
-    @DisplayName("성공-checkMember")
+    @DisplayName("성공-getMyInfo")
     @Test
-    fun `success-checkMember`() {
-        // given
-        val name = "Joon Hee Song"
-        val email = "joonhee.song@ahnlab.com"
-        val username = "joonhee.song"
-        val member = Member(name, email, username)
-        memberRepository.save(member)
-
+    fun `success-getMyInfo`() {
         // when // then
         mockMvc.perform(
-            get("/api/v1/members/check")
-                .param("email", email)
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.id", `is`(member.id!!.toInt())))
-    }
-
-    @DisplayName("성공-getMember")
-    @Test
-    fun `success-getMember`() {
-        // given
-        val name = "Joon Hee Song"
-        val email = "joonhee.song@ahnlab.com"
-        val username = "joonhee.song"
-        val member = Member(name, email, username)
-        memberRepository.save(member)
-
-        // when // then
-        mockMvc.perform(
-            get("/api/v1/members/{id}", member.id)
+            get("/api/v1/members/me")
+                .header("X-User-Id", member.id)
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.name", `is`(member.name)))
             .andExpect(jsonPath("$.email", `is`(member.email)))
-            .andExpect(jsonPath("$.username", `is`(member.username)))
+            .andExpect(jsonPath("$.profile", `is`(member.profile)))
     }
 
-    @DisplayName("성공-updateMember")
+    @DisplayName("성공-updateMyInfo")
     @Test
-    fun `success-updateMember`() {
+    fun `success-updateMyInfo`() {
         // given
-        val name = "송준희"
-        val email = "joonhee.song@ahnlab.com"
-        val username = "joonhee.song"
-        val member = Member(name, email, username)
-        memberRepository.save(member)
-
-        val request = MemberUpdateRequest("송준희2", "joonhee.song2")
+        val request = MemberUpdateRequest("mike.urssu2@gmail.com")
 
         // when // then
         mockMvc.perform(
-            put("/api/v1/members/{id}", member.id)
+            put("/api/v1/members/me")
+                .header("X-User-Id", member.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.name", `is`(request.name)))
-            .andExpect(jsonPath("$.username", `is`(request.username)))
+            .andExpect(jsonPath("$.email", `is`(request.email)))
     }
 
-    @DisplayName("성공-deleteMember")
+    @DisplayName("성공-deleteMyInfo")
     @Test
-    fun `success-deleteMember`() {
-        // given
-        val name = "Joon Hee Song"
-        val email = "joonhee.song@ahnlab.com"
-        val username = "joonhee.song"
-        val member = memberRepository.save(Member(name, email, username))
-
+    fun `success-deleteMyInfo`() {
         // when // then
         mockMvc.perform(
-            delete("/api/v1/members/{id}", member.id)
+            delete("/api/v1/members/me")
+                .header("X-User-Id", member.id)
         )
             .andExpect(status().isNoContent)
     }

@@ -2,6 +2,7 @@ package com.mumulbo.member.repository
 
 import com.mumulbo.config.TestContainers
 import com.mumulbo.member.entity.Member
+import com.mumulbo.member.enums.Provider
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -20,10 +21,12 @@ class MemberRepositoryTest : TestContainers() {
     @BeforeEach
     fun init() {
         // given
+        val provider = Provider.GOOGLE
+        val providerId = "012345678901234567890"
         val name = "송준희"
-        val email = "joonhee.song@ahnlab.com"
-        val username = "joonhee.song"
-        memberRepository.save(Member(name, email, username))
+        val email = "mike.urssu@gmail.com"
+        val profile = "https://lh3.googleusercontent.com/a/abcdefg"
+        memberRepository.save(Member(provider, providerId, name, email, profile))
     }
 
     @AfterEach
@@ -31,43 +34,32 @@ class MemberRepositoryTest : TestContainers() {
         memberRepository.deleteAllInBatch()
     }
 
-    @DisplayName("성공-existsByUsername")
+    @DisplayName("성공-findByProviderAndProviderId")
     @Test
-    fun `success-existsByEmail`() {
+    fun `success-findByProviderAndProviderId`() {
+        // given
+        val provider = Provider.GOOGLE
+        val providerId = "012345678901234567890"
+
         // when
-        val isExist = memberRepository.existsByEmail("joonhee.song@ahnlab.com")
-
-        // then
-        assertThat(isExist).isTrue()
-    }
-
-    @DisplayName("실패-existsByUsername")
-    @Test
-    fun `fail-existsByEmail`() {
-        // when
-        val isExist = memberRepository.existsByEmail("anonymous@ahnlab.com")
-
-        // then
-        assertThat(isExist).isFalse()
-    }
-
-    @DisplayName("성공-findByEmail")
-    @Test
-    fun `success-findByEmail`() {
-        // when
-        val member = memberRepository.findByEmail("joonhee.song@ahnlab.com")
+        val member = memberRepository.findByProviderAndProviderId(provider, providerId)
 
         // then
         assertThat(member)
-            .extracting("name", "email", "username")
-            .contains("송준희", "joonhee.song@ahnlab.com", "joonhee.song")
+            .isNotNull
+            .extracting("name", "email", "profile")
+            .contains("송준희", "mike.urssu@gmail.com", "https://lh3.googleusercontent.com/a/abcdefg")
     }
 
-    @DisplayName("실패-findByUsername")
+    @DisplayName("실패-findByProviderAndProviderId")
     @Test
-    fun `fail-findByEmail`() {
+    fun `fail-findByProviderAndProviderId`() {
+        // given
+        val provider = Provider.KAKAO
+        val providerId = "012345678901234567890"
+
         // when
-        val member = memberRepository.findByEmail("anonymous@ahnlab.com")
+        val member = memberRepository.findByProviderAndProviderId(provider, providerId)
 
         // then
         assertThat(member).isNull()
