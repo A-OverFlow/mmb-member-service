@@ -47,7 +47,8 @@ class MemberControllerTest : TestContainers() {
         val providerId = "012345678901234567890"
         val name = "송준희"
         val email = "mike.urssu@gmail.com"
-        member = memberRepository.save(Member(provider, providerId, name, email))
+        val profile = "https://lh3.googleusercontent.com/a/abcdefg"
+        member = memberRepository.save(Member(provider, providerId, name, email, profile))
     }
 
     @AfterEach
@@ -63,7 +64,8 @@ class MemberControllerTest : TestContainers() {
         val providerId = "012345678901234567890"
         val name = "송준희"
         val email = "mike.urssu@gmail.com"
-        val request = MemberCreateOrGetRequest(provider, providerId, name, email)
+        val profile = "https://lh3.googleusercontent.com/a/abcdefg"
+        val request = MemberCreateOrGetRequest(provider, providerId, name, email, profile)
 
         // when // then
         mockMvc.perform(
@@ -86,6 +88,7 @@ class MemberControllerTest : TestContainers() {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.name", `is`(member.name)))
             .andExpect(jsonPath("$.email", `is`(member.email)))
+            .andExpect(jsonPath("$.profile", `is`(member.profile)))
     }
 
     @DisplayName("성공-updateMyInfo")

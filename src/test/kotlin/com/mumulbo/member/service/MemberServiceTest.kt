@@ -35,7 +35,8 @@ class MemberServiceTest : TestContainers() {
         val providerId = "012345678901234567890"
         val name = "송준희"
         val email = "mike.urssu@gmail.com"
-        member = memberRepository.save(Member(provider, providerId, name, email))
+        val profile = "https://lh3.googleusercontent.com/a/abcdefg"
+        member = memberRepository.save(Member(provider, providerId, name, email, profile))
     }
 
     @AfterEach
@@ -51,7 +52,8 @@ class MemberServiceTest : TestContainers() {
         val providerId = "012345678901234567890"
         val name = "송준희"
         val email = "mike.urssu@gmail.com"
-        val request = MemberCreateOrGetRequest(provider, providerId, name, email)
+        val profile = "https://lh3.googleusercontent.com/a/abcdefg"
+        val request = MemberCreateOrGetRequest(provider, providerId, name, email, profile)
 
         // when
         val response = memberService.createOrGetMember(request)
@@ -71,8 +73,8 @@ class MemberServiceTest : TestContainers() {
 
         // then
         assertThat(response)
-            .extracting("name", "email")
-            .contains(member.name, member.email)
+            .extracting("name", "email", "profile")
+            .contains(member.name, member.email, member.profile)
     }
 
     @DisplayName("실패-getMember")
