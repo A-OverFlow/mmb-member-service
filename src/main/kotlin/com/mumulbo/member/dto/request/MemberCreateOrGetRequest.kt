@@ -7,5 +7,5 @@ class MemberCreateOrGetRequest(
     val providerId: String,
     val name: String,
     val email: String,
-    val profile: String
+    val picture: String
 )

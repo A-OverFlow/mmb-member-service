@@ -1,35 +1,36 @@
 package com.mumulbo.member.service
 
 import com.mumulbo.member.dto.request.MemberCreateOrGetRequest
-import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.dto.response.MemberCreateOrGetResponse
 import com.mumulbo.member.dto.response.MemberGetResponse
-import com.mumulbo.member.dto.response.MemberUpdateResponse
 import com.mumulbo.member.entity.Member
 import com.mumulbo.member.exception.MemberNotFoundException
 import com.mumulbo.member.repository.MemberRepository
+import com.mumulbo.profile.service.ProfileService
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional
 class MemberService(
+    private val profileService: ProfileService,
     private val memberRepository: MemberRepository
 ) {
     fun createOrGetMember(request: MemberCreateOrGetRequest): MemberCreateOrGetResponse {
         val member = memberRepository.findByProviderAndProviderId(request.provider, request.providerId)
-            ?: memberRepository.save(Member.of(request))
+            ?: createMember(request)
         return MemberCreateOrGetResponse(member.id!!)
     }
 
-    fun getMember(id: Long): MemberGetResponse {
-        val member = memberRepository.findById(id).orElseThrow { MemberNotFoundException() }
-        return MemberGetResponse.of(member)
+    fun createMember(request: MemberCreateOrGetRequest): Member {
+        val profile = profileService.createProfile(request.picture)
+        val member = Member.of(request, profile)
+        return memberRepository.save(member)
     }
 
-    fun updateMember(id: Long, request: MemberUpdateRequest): MemberUpdateResponse {
-        val member = memberRepository.findById(id).orElseThrow { MemberNotFoundException() }
-        member.update(request)
-        memberRepository.save(member)
-        return MemberUpdateResponse(member.email)
+    fun getMember(id: Long): MemberGetResponse {
+        val member = memberRepository.findByIdJoinProfile(id) ?: throw MemberNotFoundException()
+        return MemberGetResponse.of(member)
     }
 
     fun deleteMember(id: Long) {
