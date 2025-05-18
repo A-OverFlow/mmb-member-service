@@ -3,10 +3,10 @@ package com.mumulbo.member.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mumulbo.config.TestContainers
 import com.mumulbo.member.dto.request.MemberCreateOrGetRequest
-import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.entity.Member
 import com.mumulbo.member.enums.Provider
 import com.mumulbo.member.repository.MemberRepository
+import com.mumulbo.profile.entity.Profile
 import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -20,7 +20,6 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -47,7 +46,9 @@ class MemberControllerTest : TestContainers() {
         val providerId = "012345678901234567890"
         val name = "송준희"
         val email = "mike.urssu@gmail.com"
-        val profile = "https://lh3.googleusercontent.com/a/abcdefg"
+        val picture = "https://lh3.googleusercontent.com/a/abcdefg"
+
+        val profile = Profile(picture)
         member = memberRepository.save(Member(provider, providerId, name, email, profile))
     }
 
@@ -64,8 +65,8 @@ class MemberControllerTest : TestContainers() {
         val providerId = "012345678901234567890"
         val name = "송준희"
         val email = "mike.urssu@gmail.com"
-        val profile = "https://lh3.googleusercontent.com/a/abcdefg"
-        val request = MemberCreateOrGetRequest(provider, providerId, name, email, profile)
+        val picture = "https://lh3.googleusercontent.com/a/abcdefg"
+        val request = MemberCreateOrGetRequest(provider, providerId, name, email, picture)
 
         // when // then
         mockMvc.perform(
@@ -88,24 +89,7 @@ class MemberControllerTest : TestContainers() {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.name", `is`(member.name)))
             .andExpect(jsonPath("$.email", `is`(member.email)))
-            .andExpect(jsonPath("$.profile", `is`(member.profile)))
-    }
-
-    @DisplayName("성공-updateMyInfo")
-    @Test
-    fun `success-updateMyInfo`() {
-        // given
-        val request = MemberUpdateRequest("mike.urssu2@gmail.com")
-
-        // when // then
-        mockMvc.perform(
-            put("/api/v1/members/me")
-                .header("X-User-Id", member.id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.email", `is`(request.email)))
+            .andExpect(jsonPath("$.picture", `is`(member.profile.picture)))
     }
 
     @DisplayName("성공-deleteMyInfo")

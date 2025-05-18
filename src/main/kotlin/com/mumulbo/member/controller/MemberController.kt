@@ -1,16 +1,13 @@
 package com.mumulbo.member.controller
 
 import com.mumulbo.member.dto.request.MemberCreateOrGetRequest
-import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.dto.response.MemberCreateOrGetResponse
 import com.mumulbo.member.dto.response.MemberGetResponse
-import com.mumulbo.member.dto.response.MemberUpdateResponse
 import com.mumulbo.member.service.MemberService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
@@ -30,15 +27,6 @@ class MemberController(
     @GetMapping("/me")
     fun getMyInfo(@RequestHeader("X-User-Id") id: Long): ResponseEntity<MemberGetResponse> {
         val response = memberService.getMember(id)
-        return ResponseEntity.ok(response)
-    }
-
-    @PutMapping("/me")
-    fun updateMyInfo(
-        @RequestHeader("X-User-Id") id: Long,
-        @RequestBody request: MemberUpdateRequest
-    ): ResponseEntity<MemberUpdateResponse> {
-        val response = memberService.updateMember(id, request)
         return ResponseEntity.ok(response)
     }
 

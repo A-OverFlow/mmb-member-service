@@ -2,23 +2,24 @@ package com.mumulbo.member.service
 
 import com.mumulbo.config.TestContainers
 import com.mumulbo.member.dto.request.MemberCreateOrGetRequest
-import com.mumulbo.member.dto.request.MemberUpdateRequest
 import com.mumulbo.member.entity.Member
 import com.mumulbo.member.enums.Provider
 import com.mumulbo.member.exception.MemberNotFoundException
 import com.mumulbo.member.repository.MemberRepository
+import com.mumulbo.profile.entity.Profile
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.transaction.annotation.Transactional
 import org.testcontainers.junit.jupiter.Testcontainers
 
 @SpringBootTest
 @Testcontainers
+@Transactional
 class MemberServiceTest : TestContainers() {
     @Autowired
     private lateinit var memberService: MemberService
@@ -35,13 +36,10 @@ class MemberServiceTest : TestContainers() {
         val providerId = "012345678901234567890"
         val name = "송준희"
         val email = "mike.urssu@gmail.com"
-        val profile = "https://lh3.googleusercontent.com/a/abcdefg"
-        member = memberRepository.save(Member(provider, providerId, name, email, profile))
-    }
+        val picture = "https://lh3.googleusercontent.com/a/abcdefg"
 
-    @AfterEach
-    fun cleansing() {
-        memberRepository.deleteAllInBatch()
+        val profile = Profile(picture)
+        member = memberRepository.save(Member(provider, providerId, name, email, profile))
     }
 
     @DisplayName("성공-createOrGetMember")
@@ -52,8 +50,8 @@ class MemberServiceTest : TestContainers() {
         val providerId = "012345678901234567890"
         val name = "송준희"
         val email = "mike.urssu@gmail.com"
-        val profile = "https://lh3.googleusercontent.com/a/abcdefg"
-        val request = MemberCreateOrGetRequest(provider, providerId, name, email, profile)
+        val picture = "https://lh3.googleusercontent.com/a/abcdefg"
+        val request = MemberCreateOrGetRequest(provider, providerId, name, email, picture)
 
         // when
         val response = memberService.createOrGetMember(request)
@@ -73,8 +71,8 @@ class MemberServiceTest : TestContainers() {
 
         // then
         assertThat(response)
-            .extracting("name", "email", "profile")
-            .contains(member.name, member.email, member.profile)
+            .extracting("name", "email", "picture")
+            .contains(member.name, member.email, member.profile.picture)
     }
 
     @DisplayName("실패-getMember")
@@ -85,30 +83,6 @@ class MemberServiceTest : TestContainers() {
 
         // when // then
         assertThatThrownBy { memberService.getMember(id) }
-            .isInstanceOf(MemberNotFoundException::class.java)
-    }
-
-    @DisplayName("성공-updateMember")
-    @Test
-    fun `success-updateMember`() {
-        // given
-        val request = MemberUpdateRequest("mike.urssu2@gmail.com")
-
-        // when
-        val response = memberService.updateMember(member.id!!, request)
-
-        // then
-        assertThat(response.email).isEqualTo(request.email)
-    }
-
-    @DisplayName("실패-updateMember")
-    @Test
-    fun `fail-updateMember`() {
-        // given
-        val request = MemberUpdateRequest("mike.urssu2@gmail.com")
-
-        // when // then
-        assertThatThrownBy { memberService.updateMember(999_999L, request) }
             .isInstanceOf(MemberNotFoundException::class.java)
     }
 
