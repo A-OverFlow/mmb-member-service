@@ -72,6 +72,13 @@ jobs:
           echo "JPA_SHOW_SQL=${{ vars.JPA_SHOW_SQL }}" >> .env
           echo "LOG_ROOT_LEVEL=${{ vars.LOG_ROOT_LEVEL }}" >> .env
           echo "LOG_JPA_LEVEL=${{ vars.LOG_JPA_LEVEL }}" >> .env
+          echo "MINIO_HOST=${{ vars.MINIO_HOST }}" >> .env
+          echo "MINIO_PORT=${{ vars.MINIO_PORT }}" >> .env
+          echo "MINIO_CONSOLE_PORT=${{ vars.MINIO_CONSOLE_PORT }}" >> .env
+          echo "MINIO_ALIAS=${{ vars.MINIO_ALIAS }}" >> .env
+          echo "MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}" >> .env
+          echo "MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}" >> .env
+          echo "MINIO_BUCKET=${{ vars.MINIO_BUCKET }}" >> .env
           echo "MMB_DOCKER_NETWORK=${{ vars.MMB_DOCKER_NETWORK }}" >> .env
           echo "DOCKER_IMAGE=${{ vars.DOCKER_IMAGE }}" >> .env
 
