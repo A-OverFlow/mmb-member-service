@@ -18,14 +18,13 @@ class MemberService(
 ) {
     fun createOrGetMember(request: MemberCreateOrGetRequest): MemberCreateOrGetResponse {
         val member = memberRepository.findByProviderAndProviderId(request.provider, request.providerId)
-            ?: createMember(request)
+            ?: saveMember(request)
         return MemberCreateOrGetResponse(member.id!!)
     }
 
-    fun createMember(request: MemberCreateOrGetRequest): Member {
-        val profile = profileService.createProfile(request.picture)
-        val member = Member.of(request, profile)
-        return memberRepository.save(member)
+    private fun saveMember(request: MemberCreateOrGetRequest): Member {
+        val profile = profileService.saveProfile(request.picture)
+        return memberRepository.save(Member.of(request, profile))
     }
 
     fun getMember(id: Long): MemberGetResponse {
