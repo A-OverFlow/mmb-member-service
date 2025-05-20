@@ -30,3 +30,10 @@ logging:
   level:
     root: ${LOG_ROOT_LEVEL:info}
     org.hibernate.orm.jdbc.bind: ${LOG_JPA_LEVEL:TRACE}
+
+minio:
+  host: ${MINIO_HOST:http://localhost}
+  port: ${MINIO_PORT:9000}
+  access-key: ${MINIO_ROOT_USER:demo_user}
+  secret-key: ${MINIO_ROOT_PASSWORD:demo_password}
+  bucket: ${MINIO_BUCKET:images}

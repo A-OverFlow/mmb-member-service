@@ -27,8 +27,40 @@ services:
       - mysql
     restart: unless-stopped
 
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "${MINIO_PORT}:9000"
+      - "${MINIO_CONSOLE_PORT}:9001"
+    env_file:
+      - .env
+    command: server /data --console-address ":${MINIO_CONSOLE_PORT}"
+    volumes:
+      - minio_data:/data
+    networks:
+      - external-net
+
+  minio-init: # minio bucket 생성 및 업로드/다운로드 권한 부여
+    image: minio/mc
+    container_name: init_minio
+    env_file:
+      - .env
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+        sleep 5;
+        mc alias set $MINIO_ALIAS $MINIO_HOST:$MINIO_PORT $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD;
+        mc mb $MINIO_ALIAS/$MINIO_BUCKET || true;
+        mc anonymous set public $MINIO_ALIAS/$MINIO_BUCKET;
+      "
+    networks:
+      - external-net
+
 volumes:
   mysql_data:
+  minio_data:
 
 networks:
   external-net:

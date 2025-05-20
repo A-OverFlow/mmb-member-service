@@ -15,3 +15,10 @@ spring:
 logging:
   level:
     org.hibernate.orm.jdbc.bind: off
+
+minio:
+  host: ${MINIO_HOST:http://localhost}
+  port: ${MINIO_PORT:9000}
+  access-key: ${MINIO_ACCESS_KEY:demo_user}
+  secret-key: ${MINIO_SECRET_KEY:demo_password}
+  bucket: ${MINIO_BUCKET:images}
