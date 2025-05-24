@@ -28,7 +28,7 @@ class MemberService(
     }
 
     fun getMember(id: Long): MemberGetResponse {
-        val member = memberRepository.findByIdJoinProfile(id) ?: throw MemberNotFoundException()
+        val member = memberRepository.findWithProfileById(id) ?: throw MemberNotFoundException()
         return MemberGetResponse.of(member)
     }
 

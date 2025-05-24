@@ -29,7 +29,7 @@ class ProfileService(
     }
 
     fun getProfile(id: Long): ProfileGetResponse {
-        val member = memberRepository.findByIdJoinProfile(id) ?: throw MemberNotFoundException()
+        val member = memberRepository.findWithProfileById(id) ?: throw MemberNotFoundException()
         return ProfileGetResponse(member)
     }
 }

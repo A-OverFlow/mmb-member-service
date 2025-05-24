@@ -43,7 +43,7 @@ class MemberRepositoryTest : TestContainers() {
         val id = member.id!!
 
         // when
-        val member = memberRepository.findByIdJoinProfile(id)
+        val member = memberRepository.findWithProfileById(id)
 
         // then
         assertThat(member)
@@ -59,7 +59,7 @@ class MemberRepositoryTest : TestContainers() {
         val id = 999_999L
 
         // when
-        val member = memberRepository.findByIdJoinProfile(id)
+        val member = memberRepository.findWithProfileById(id)
 
         // then
         assertThat(member).isNull()
