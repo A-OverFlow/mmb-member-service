@@ -9,7 +9,6 @@ import com.mumulbo.profile.dto.MultipartFileWrapper
 import com.mumulbo.profile.entity.Profile
 import com.mumulbo.profile.exception.InvalidFileException
 import java.net.URI
-import kotlin.test.assertTrue
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.DisplayName
@@ -48,7 +47,7 @@ class ProfileServiceTest : TestContainers() {
     fun `success-saveProfile`() {
         // given
         val picture = "https://lh3.googleusercontent.com/a/abcdefg"
-        val objectName = "profiles/${ULID.nextULID()}"
+        val objectName = ULID.nextULID().toString()
         val file = MultipartFileWrapper(
             byteArrayOf(
                 0x89.toByte(), 0x50.toByte(), 0x4E.toByte(), 0x47.toByte(),
@@ -59,13 +58,13 @@ class ProfileServiceTest : TestContainers() {
         )
 
         `when`(fileService.urlToMultipartFile(URI.create(picture).toURL())).thenReturn(file)
-        `when`(fileService.uploadImage(file)).thenReturn("$bucket/$objectName")
+        `when`(fileService.uploadImage(file)).thenReturn(objectName)
 
         // when
         val profile = profileService.saveProfile(picture)
 
         // then
-        assertTrue(profile.picture.endsWith(objectName))
+        assertThat(profile.picture).isEqualTo(objectName)
         verify(fileService).urlToMultipartFile(URI.create(picture).toURL())
         verify(fileService).uploadImage(file)
     }
@@ -89,19 +88,6 @@ class ProfileServiceTest : TestContainers() {
             .isInstanceOf(InvalidFileException::class.java)
     }
 
-    @DisplayName("성공-createProfile")
-    @Test
-    fun `success-createMember`() {
-        // given
-        val picture = "https://lh3.googleusercontent.com/a/abcdefg"
-
-        // when
-        val response = profileService.createProfile(picture)
-
-        // then
-        assertThat(response.id).isPositive()
-    }
-
     @DisplayName("성공-getProfile")
     @Test
     fun `success-getProfile`() {
@@ -110,7 +96,7 @@ class ProfileServiceTest : TestContainers() {
         val providerId = "012345678901234567890"
         val name = "송준희"
         val email = "mike.urssu@gmail.com"
-        val picture = "https://lh3.googleusercontent.com/a/abcdefg"
+        val picture = "abcdefgh"
 
         val profile = Profile(picture)
         val member = memberRepository.save(Member(provider, providerId, name, email, profile))
@@ -123,7 +109,7 @@ class ProfileServiceTest : TestContainers() {
         // then
         assertThat(response).isNotNull
             .extracting("name", "email", "picture")
-            .contains(name, email, picture)
+            .contains(name, email, "$bucket/profiles/${member.profile.picture}")
     }
 
     @DisplayName("fail-getProfile")

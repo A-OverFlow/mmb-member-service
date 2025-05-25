@@ -9,6 +9,7 @@ import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.web.servlet.MockMvc
@@ -27,6 +28,9 @@ class ProfileControllerTest : TestContainers() {
     @Autowired
     private lateinit var memberRepository: MemberRepository
 
+    @Value("\${minio.bucket}")
+    private lateinit var bucket: String
+
     @DisplayName("성공-getProfile")
     @Test
     fun `success-createOrGetMember`() {
@@ -35,7 +39,7 @@ class ProfileControllerTest : TestContainers() {
         val providerId = "012345678901234567890"
         val name = "송준희"
         val email = "mike.urssu@gmail.com"
-        val picture = "https://lh3.googleusercontent.com/a/abcdefg"
+        val picture = "abcdefgh"
 
         val profile = Profile(picture)
         val member = memberRepository.save(Member(provider, providerId, name, email, profile))
@@ -48,7 +52,7 @@ class ProfileControllerTest : TestContainers() {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.name", `is`(member.name)))
             .andExpect(jsonPath("$.email", `is`(member.email)))
-            .andExpect(jsonPath("$.picture", `is`(member.profile.picture)))
+            .andExpect(jsonPath("$.picture", `is`("$bucket/profiles/${member.profile.picture}")))
             .andExpect(jsonPath("$.introduction", `is`(member.profile.introduction)))
             .andExpect(jsonPath("$.website", `is`(member.profile.website)))
     }

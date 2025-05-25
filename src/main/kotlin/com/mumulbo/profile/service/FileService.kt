@@ -44,16 +44,16 @@ class FileService(
             throw InvalidFileException()
         }
 
-        val objectName = "profiles/${ULID.nextULID()}"
+        val objectName = ULID.nextULID().toString()
         minioClient.putObject(
             PutObjectArgs.builder()
                 .bucket(bucket)
-                .`object`(objectName)
+                .`object`("profiles/$objectName")
                 .stream(file.inputStream, file.size, -1)
                 .contentType(file.contentType)
                 .build()
         )
 
-        return "$bucket/$objectName"
+        return objectName
     }
 }
