@@ -60,7 +60,7 @@ tasks.withType<Test> {
 }
 
 tasks.bootJar {
-    archiveFileName.set("member-service.jar")
+    archiveFileName.set("mmb-member-service.jar")
 }
 
 tasks.named<Jar>("jar") {

@@ -1,58 +1,82 @@
-# Member Service
+# MMB Member Service [![Build Status](https://github.com/A-OverFlow/mmb-member-service/actions/workflows/ci.yml/badge.svg)](https://github.com/A-OverFlow/mmb-member-service/actions/workflows/ci.yml)
 
-무물보 서비스에서 회원 정보를 관리하는 서비스입니다.
+## Understanding the application with a diagrams
 
-## Docker 이미지 정보
+TBD
 
-- 이미지: `mumulbo/mmb-member-service`
-- 태그: `latest`, `dev`
+## Run `mmb-member-service` locally
 
-## 실행 방법
+`mmb-member-service` is a [Spring Boot](https://spring.io/guides/gs/spring-boot) application built using [Gradle](https://spring.io/guides/gs/gradle/). You can build a jar file and run it from the command line (it should work just as well with Java 21 or
+newer):
 
-### 회원 서비스와 DB를 컨테이너로 함께 띄울 경우
-
-``` bash
-docker-compose up -d
+```bash
+git clone https://github.com/A-OverFlow/mmb-member-service.git
+cd mmb-member-service
+./gradlew build
+java -jar build/libs/mmb-member-service.jar
 ```
 
-### 회원 서비스만 컨테이너로 띄울 경우
+## Building a Container
 
-``` bash
+You can build a container image (if you have a docker daemon) using `Dockerfile`.
+
+```bash
+docker build -t mmb-member-service .
+```
+
+## Create Volumes And Network
+
+```bash
+docker volume create mysql_data
+docker volume create minio_data
+docker network create --driver bridge mmb-network
+```
+
+## Database configuration
+
+In its default configuration, `mmb-member-service` uses MySQL.
+You can start MySQL locally with whatever installer works for your OS or use docker:
+
+```bash
 docker run -d \
-  --name mmb-member-service \
-  -p 8082:8082 \
-  --env-file .env \
-  --network external-net \
-  mmb-member-service:dev
+  --name mysql \
+  -e MYSQL_USER=demo_user \
+  -e MYSQL_ROOT_PASSWORD=demo_password \
+  -e MYSQL_DATABASE=demo_db \
+  -p 3306:3306 \
+  -v mysql_data:/var/lib/mysql \
+  --network mmb-network \
+  mysql:8
 ```
 
-## 환경변수
+## Minio configuration
 
-아래 환경변수를 직접 수정해서 사용할 수 있습니다.  
-따로 설정하지 않을 경우 `application.yml` 파일이나 `.env` 파일에 설정된 기본값으로 실행됩니다.
+```bash
+docker run -d \
+  --name minio \
+  -p 9000:9000 \
+  -p 9001:9001 \
+  -v minio_data:/data \
+  --network mmb-network \
+  minio/minio:latest server /data --console-address ":9001"
+```
 
-* `APPLICATION_PORT`: 애플리케이션 실행 시 사용되는 포트
-* `APPLICATION_NAME`: 애플리케이션 이름
-* `DB_USERNAME`: DB 사용자
-* `DB_PASSWORD`: DB 비밀번호
-* `DB_HOST`: DB 주소
-* `CONTAINER_DB_PORT`: DB 실행 시 사용되는 포트
-* `DB_NAME`: Database 이름
-* `JPA_DDL_AUTO`: 애플리케이션 실행 시 Table 생성 옵션
-* `JPA_FORMAT_SQL`: JPA 쿼리가 출력될 때 포맷팅 여부
-* `JPA_SHOW_SQL`: JPA 쿼리 출력 여부
-* `LOG_ROOT_LEVEL`: 기본 로그 레벨
-* `LOG_JPA_LEVEL`: JPA 로그 레벨
+```bash
+docker run --rm \
+  --name init_minio \
+  minio/mc \
+  bash -c "
+    sleep 5;
+    mc alias set minio http://minio:9000 demo_user demo_password;
+    mc mb minio images || true;
+    mc anonymous set public minio/images;
+  "
+```
 
-## 로그/볼륨 설정 (선택)
+## Run `mmb-member-service` with docker-compose
 
-TBD
+Instead of vanilla `docker` you can also use the provided `docker-compose.yml` file to start the database containers.
 
-## 헬스 체크
-
-TBD
-
-## 참고
-
-* [소스 코드 저장소](https://github.com/A-OverFlow/mmb-member-service)
-* [회원 서비스 Api 문서](https://github.com/A-OverFlow/mmb-docs/blob/main/0_%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8_%EA%B4%80%EB%A6%AC/1_%EA%B0%9C%EB%B0%9C/API_Docs/MEMBER_REST_API_Docs.md)
+```bash
+docker-compose up --build -d 
+```
