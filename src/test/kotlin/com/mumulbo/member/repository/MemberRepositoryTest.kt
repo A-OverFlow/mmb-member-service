@@ -49,7 +49,7 @@ class MemberRepositoryTest : TestContainers() {
         assertThat(member)
             .isNotNull
             .extracting("name", "email", "profile.picture")
-            .contains("송준희", "mike.urssu@gmail.com", "https://lh3.googleusercontent.com/a/abcdefg")
+            .containsExactly("송준희", "mike.urssu@gmail.com", "https://lh3.googleusercontent.com/a/abcdefg")
     }
 
     @DisplayName("실패-findByIdJoinProfile")
@@ -79,7 +79,7 @@ class MemberRepositoryTest : TestContainers() {
         assertThat(member)
             .isNotNull
             .extracting("name", "email", "profile.picture")
-            .contains("송준희", "mike.urssu@gmail.com", "https://lh3.googleusercontent.com/a/abcdefg")
+            .containsExactly("송준희", "mike.urssu@gmail.com", "https://lh3.googleusercontent.com/a/abcdefg")
     }
 
     @DisplayName("실패-findByProviderAndProviderId")

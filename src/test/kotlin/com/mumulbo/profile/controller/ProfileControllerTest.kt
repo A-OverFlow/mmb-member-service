@@ -1,12 +1,16 @@
 package com.mumulbo.profile.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.mumulbo.config.TestContainers
 import com.mumulbo.member.entity.Member
 import com.mumulbo.member.enums.Provider
 import com.mumulbo.member.repository.MemberRepository
+import com.mumulbo.profile.dto.request.ProfileInfoUpdateRequest
 import com.mumulbo.profile.entity.Profile
 import com.mumulbo.profile.service.FileService
+import java.util.Optional
 import org.hamcrest.Matchers.`is`
+import org.hamcrest.Matchers.nullValue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -23,6 +27,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -44,6 +49,9 @@ class ProfileControllerTest : TestContainers() {
 
     @Value("\${minio.bucket}")
     private lateinit var bucket: String
+
+    @Autowired
+    private lateinit var objectMapper: ObjectMapper
 
     private lateinit var member: Member
 
@@ -104,5 +112,69 @@ class ProfileControllerTest : TestContainers() {
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.picture", `is`("$bucket/profiles/$objectName")))
+    }
+
+    @DisplayName("성공-updateProfileInfo(update all properties)")
+    @Test
+    fun `success-updateProfileInfo(update all properties)`() {
+        // given
+        val id = member.id!!
+
+        val introduction = "new introduction"
+        val website = "new website"
+        val request = ProfileInfoUpdateRequest(Optional.of(introduction), Optional.of(website))
+
+        // when // then
+        mockMvc.perform(
+            patch("/api/v1/members/me/profile/info")
+                .header("X-User-Id", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.introduction", `is`(introduction)))
+            .andExpect(jsonPath("$.website", `is`(website)))
+    }
+
+    @DisplayName("성공-updateProfileInfo(update partial properties)")
+    @Test
+    fun `success-updateProfileInfo(update partial properties)`() {
+        // given
+        val id = member.id!!
+
+        val introduction = "new introduction"
+        val request = ProfileInfoUpdateRequest(Optional.of(introduction), null)
+
+        // when // then
+        mockMvc.perform(
+            patch("/api/v1/members/me/profile/info")
+                .header("X-User-Id", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.introduction", `is`(introduction)))
+            .andExpect(jsonPath("$.website", `is`(member.profile.website)))
+    }
+
+    @DisplayName("성공-updateProfileInfo(update null properties)")
+    @Test
+    fun `success-updateProfileInfo(update null properties)`() {
+        // given
+        val id = member.id!!
+
+        val introduction = "new introduction"
+        val request = ProfileInfoUpdateRequest(Optional.of(introduction), Optional.ofNullable(null))
+
+        // when // then
+        mockMvc.perform(
+            patch("/api/v1/members/me/profile/info")
+                .header("X-User-Id", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.introduction", `is`(introduction)))
+            .andExpect(jsonPath("$.website").value(nullValue()))
     }
 }

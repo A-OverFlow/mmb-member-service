@@ -3,7 +3,9 @@ package com.mumulbo.profile.service
 import com.mumulbo.member.exception.MemberNotFoundException
 import com.mumulbo.member.repository.MemberRepository
 import com.mumulbo.profile.ProfileRepository
+import com.mumulbo.profile.dto.request.ProfileInfoUpdateRequest
 import com.mumulbo.profile.dto.response.ProfileGetResponse
+import com.mumulbo.profile.dto.response.ProfileInfoUpdateResponse
 import com.mumulbo.profile.dto.response.ProfilePictureUpdateResponse
 import com.mumulbo.profile.entity.Profile
 import java.net.URI
@@ -39,8 +41,17 @@ class ProfileService(
 
         val objectName = fileService.uploadImage(picture)
         profile.picture = objectName
-        memberRepository.save(member)
 
         return ProfilePictureUpdateResponse("$bucket/profiles/${objectName}")
+    }
+
+    fun updateInfo(id: Long, request: ProfileInfoUpdateRequest): ProfileInfoUpdateResponse {
+        val member = memberRepository.findWithProfileById(id) ?: throw MemberNotFoundException()
+        val profile = member.profile
+
+        request.introduction?.let { profile.introduction = it.orElse(null) }
+        request.website?.let { profile.website = it.orElse(null) }
+
+        return ProfileInfoUpdateResponse(profile)
     }
 }

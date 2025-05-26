@@ -120,7 +120,7 @@ class MemberServiceTest : TestContainers() {
         // then
         assertThat(response)
             .extracting("name", "email", "picture")
-            .contains(member.name, member.email, "$bucket/profiles/${member.profile.picture}")
+            .containsExactly(member.name, member.email, "$bucket/profiles/${member.profile.picture}")
     }
 
     @DisplayName("실패-getMember")
