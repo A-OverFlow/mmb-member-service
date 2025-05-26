@@ -8,10 +8,12 @@ import jakarta.persistence.Id
 
 @Entity
 class Profile(
+    @field:Column
     var picture: String
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @field:Column
     val id: Long? = null
 
     @field:Column

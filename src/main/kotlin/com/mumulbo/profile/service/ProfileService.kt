@@ -4,11 +4,13 @@ import com.mumulbo.member.exception.MemberNotFoundException
 import com.mumulbo.member.repository.MemberRepository
 import com.mumulbo.profile.ProfileRepository
 import com.mumulbo.profile.dto.response.ProfileGetResponse
+import com.mumulbo.profile.dto.response.ProfilePictureUpdateResponse
 import com.mumulbo.profile.entity.Profile
 import java.net.URI
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
 
 @Service
 @Transactional
@@ -29,5 +31,16 @@ class ProfileService(
     fun getProfile(id: Long): ProfileGetResponse {
         val member = memberRepository.findWithProfileById(id) ?: throw MemberNotFoundException()
         return ProfileGetResponse(member, bucket)
+    }
+
+    fun updatePicture(id: Long, picture: MultipartFile): ProfilePictureUpdateResponse {
+        val member = memberRepository.findWithProfileById(id) ?: throw MemberNotFoundException()
+        val profile = member.profile
+
+        val objectName = fileService.uploadImage(picture)
+        profile.picture = objectName
+        memberRepository.save(member)
+
+        return ProfilePictureUpdateResponse("$bucket/profiles/${objectName}")
     }
 }

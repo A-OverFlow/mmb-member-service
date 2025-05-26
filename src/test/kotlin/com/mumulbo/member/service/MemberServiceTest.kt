@@ -76,7 +76,7 @@ class MemberServiceTest : TestContainers() {
                 0x0D.toByte(), 0x0A.toByte(), 0x1A.toByte(), 0x0A.toByte()
             ),
             objectName,
-            "image.png",
+            "image/png",
         )
         Mockito.`when`(fileService.urlToMultipartFile(URI.create(picture).toURL())).thenReturn(file)
         Mockito.`when`(fileService.uploadImage(file)).thenReturn(objectName)

@@ -46,6 +46,7 @@ class ProfileServiceTest : TestContainers() {
     @Test
     fun `success-saveProfile`() {
         // given
+        // mock
         val picture = "https://lh3.googleusercontent.com/a/abcdefg"
         val objectName = ULID.nextULID().toString()
         val file = MultipartFileWrapper(
@@ -53,10 +54,9 @@ class ProfileServiceTest : TestContainers() {
                 0x89.toByte(), 0x50.toByte(), 0x4E.toByte(), 0x47.toByte(),
                 0x0D.toByte(), 0x0A.toByte(), 0x1A.toByte(), 0x0A.toByte()
             ),
-            objectName,
-            "image.png",
+            "profile.png",
+            "image/png",
         )
-
         `when`(fileService.urlToMultipartFile(URI.create(picture).toURL())).thenReturn(file)
         `when`(fileService.uploadImage(file)).thenReturn(objectName)
 
@@ -73,19 +73,21 @@ class ProfileServiceTest : TestContainers() {
     @Test
     fun `fail-saveProfile`() {
         // given
+        // mock
         val picture = "https://lh3.googleusercontent.com/a/abcdefg"
         val file = MultipartFileWrapper(
             "text file".toByteArray(),
             "text.txt",
             "text/plain",
         )
-
         `when`(fileService.urlToMultipartFile(URI.create(picture).toURL())).thenReturn(file)
         `when`(fileService.uploadImage(file)).thenThrow(InvalidFileException::class.java)
 
         // when // then
         assertThatThrownBy { profileService.saveProfile(picture) }
             .isInstanceOf(InvalidFileException::class.java)
+        verify(fileService).urlToMultipartFile(URI.create(picture).toURL())
+        verify(fileService).uploadImage(file)
     }
 
     @DisplayName("성공-getProfile")
@@ -121,5 +123,83 @@ class ProfileServiceTest : TestContainers() {
         // when // then
         assertThatThrownBy { profileService.getProfile(id) }
             .isInstanceOf(MemberNotFoundException::class.java)
+    }
+
+    @DisplayName("성공-updatePicture")
+    @Test
+    fun `success-updatePicture`() {
+        // given
+        val provider = Provider.GOOGLE
+        val providerId = "012345678901234567890"
+        val name = "송준희"
+        val email = "mike.urssu@gmail.com"
+        val picture = "abcdefgh"
+
+        val profile = Profile(picture)
+        val member = memberRepository.save(Member(provider, providerId, name, email, profile))
+
+        val id = member.id!!
+        val objectName = ULID.nextULID().toString()
+        val file = MultipartFileWrapper(
+            byteArrayOf(
+                0x89.toByte(), 0x50.toByte(), 0x4E.toByte(), 0x47.toByte(),
+                0x0D.toByte(), 0x0A.toByte(), 0x1A.toByte(), 0x0A.toByte()
+            ),
+            "profile.png",
+            "image/png",
+        )
+        `when`(fileService.uploadImage(file)).thenReturn(objectName)
+
+        // when
+        val response = profileService.updatePicture(id, file)
+
+        // then
+        assertThat(response.picture).isEqualTo("$bucket/profiles/$objectName")
+        verify(fileService).uploadImage(file)
+    }
+
+    @DisplayName("실패-updatePicture(user not exists)")
+    @Test
+    fun `fail-updatePicture(user not exists)`() {
+        // given
+        val id = 999_999L
+        val file = MultipartFileWrapper(
+            byteArrayOf(
+                0x89.toByte(), 0x50.toByte(), 0x4E.toByte(), 0x47.toByte(),
+                0x0D.toByte(), 0x0A.toByte(), 0x1A.toByte(), 0x0A.toByte()
+            ),
+            "profile.png",
+            "image/png",
+        )
+
+        // when // then
+        assertThatThrownBy { profileService.updatePicture(id, file) }
+            .isInstanceOf(MemberNotFoundException::class.java)
+    }
+
+    @DisplayName("실패-updatePicture(invalid file)")
+    @Test
+    fun `fail-updatePicture(invalid file)`() {
+        // given
+        val provider = Provider.GOOGLE
+        val providerId = "012345678901234567890"
+        val name = "송준희"
+        val email = "mike.urssu@gmail.com"
+        val picture = "abcdefgh"
+
+        val profile = Profile(picture)
+        val member = memberRepository.save(Member(provider, providerId, name, email, profile))
+
+        val id = member.id!!
+        val file = MultipartFileWrapper(
+            "text file".toByteArray(),
+            "text.txt",
+            "text/plain",
+        )
+        `when`(fileService.uploadImage(file)).thenThrow(InvalidFileException::class.java)
+
+        // when // then
+        assertThatThrownBy { profileService.updatePicture(id, file) }
+            .isInstanceOf(InvalidFileException::class.java)
     }
 }
