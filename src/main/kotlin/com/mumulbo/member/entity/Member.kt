@@ -19,8 +19,8 @@ import java.time.LocalDateTime
 
 @Entity
 class Member(
-    @field:Column
     @Enumerated(EnumType.STRING)
+    @field:Column
     val provider: Provider,
 
     @field:Column
@@ -38,8 +38,10 @@ class Member(
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @field:Column
     val id: Long? = null
 
+    @field:Column
     val createdAt: LocalDateTime = LocalDateTime.now(Clock.systemDefaultZone())
 
     companion object {

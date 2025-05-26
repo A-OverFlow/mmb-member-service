@@ -9,7 +9,7 @@ class MemberGetResponse(
 ) {
     companion object {
         fun of(member: Member): MemberGetResponse {
-            return MemberGetResponse(member.name, member.email, member.profile.picture)
+            return MemberGetResponse(member.name, member.email, "images/profiles/${member.profile.picture}")
         }
     }
 }

@@ -9,10 +9,10 @@ class ProfileGetResponse(
     val introduction: String?,
     val website: String?
 ) {
-    constructor(member: Member) : this(
+    constructor(member: Member, bucket: String) : this(
         name = member.name,
         email = member.email,
-        picture = member.profile.picture,
+        picture = "$bucket/profiles/${member.profile.picture}",
         introduction = member.profile.introduction,
         website = member.profile.website
     )

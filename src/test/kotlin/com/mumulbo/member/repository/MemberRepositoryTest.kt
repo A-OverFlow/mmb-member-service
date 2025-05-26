@@ -43,13 +43,13 @@ class MemberRepositoryTest : TestContainers() {
         val id = member.id!!
 
         // when
-        val member = memberRepository.findByIdJoinProfile(id)
+        val member = memberRepository.findWithProfileById(id)
 
         // then
         assertThat(member)
             .isNotNull
             .extracting("name", "email", "profile.picture")
-            .contains("송준희", "mike.urssu@gmail.com", "https://lh3.googleusercontent.com/a/abcdefg")
+            .containsExactly("송준희", "mike.urssu@gmail.com", "https://lh3.googleusercontent.com/a/abcdefg")
     }
 
     @DisplayName("실패-findByIdJoinProfile")
@@ -59,7 +59,7 @@ class MemberRepositoryTest : TestContainers() {
         val id = 999_999L
 
         // when
-        val member = memberRepository.findByIdJoinProfile(id)
+        val member = memberRepository.findWithProfileById(id)
 
         // then
         assertThat(member).isNull()
@@ -79,7 +79,7 @@ class MemberRepositoryTest : TestContainers() {
         assertThat(member)
             .isNotNull
             .extracting("name", "email", "profile.picture")
-            .contains("송준희", "mike.urssu@gmail.com", "https://lh3.googleusercontent.com/a/abcdefg")
+            .containsExactly("송준희", "mike.urssu@gmail.com", "https://lh3.googleusercontent.com/a/abcdefg")
     }
 
     @DisplayName("실패-findByProviderAndProviderId")

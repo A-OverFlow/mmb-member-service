@@ -6,12 +6,14 @@ import com.mumulbo.member.enums.Provider
 import com.mumulbo.member.exception.MemberNotFoundException
 import com.mumulbo.member.repository.MemberRepository
 import com.mumulbo.profile.dto.MultipartFileWrapper
+import com.mumulbo.profile.dto.request.ProfileInfoUpdateRequest
 import com.mumulbo.profile.entity.Profile
 import com.mumulbo.profile.exception.InvalidFileException
 import java.net.URI
-import kotlin.test.assertTrue
+import java.util.Optional
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -43,29 +45,44 @@ class ProfileServiceTest : TestContainers() {
     @Value("\${minio.bucket}")
     private lateinit var bucket: String
 
+    private lateinit var member: Member
+
+    @BeforeEach
+    fun init() {
+        // given
+        val provider = Provider.GOOGLE
+        val providerId = "012345678901234567890"
+        val name = "송준희"
+        val email = "mike.urssu@gmail.com"
+        val picture = "abcdefgh"
+
+        val profile = Profile(picture)
+        member = memberRepository.save(Member(provider, providerId, name, email, profile))
+    }
+
     @DisplayName("성공-saveProfile")
     @Test
     fun `success-saveProfile`() {
         // given
+        // mock
         val picture = "https://lh3.googleusercontent.com/a/abcdefg"
-        val objectName = "profiles/${ULID.nextULID()}"
+        val objectName = ULID.nextULID().toString()
         val file = MultipartFileWrapper(
             byteArrayOf(
                 0x89.toByte(), 0x50.toByte(), 0x4E.toByte(), 0x47.toByte(),
                 0x0D.toByte(), 0x0A.toByte(), 0x1A.toByte(), 0x0A.toByte()
             ),
-            objectName,
-            "image.png",
+            "profile.png",
+            "image/png",
         )
-
         `when`(fileService.urlToMultipartFile(URI.create(picture).toURL())).thenReturn(file)
-        `when`(fileService.uploadImage(file)).thenReturn("$bucket/$objectName")
+        `when`(fileService.uploadImage(file)).thenReturn(objectName)
 
         // when
         val profile = profileService.saveProfile(picture)
 
         // then
-        assertTrue(profile.picture.endsWith(objectName))
+        assertThat(profile.picture).isEqualTo(objectName)
         verify(fileService).urlToMultipartFile(URI.create(picture).toURL())
         verify(fileService).uploadImage(file)
     }
@@ -74,47 +91,27 @@ class ProfileServiceTest : TestContainers() {
     @Test
     fun `fail-saveProfile`() {
         // given
+        // mock
         val picture = "https://lh3.googleusercontent.com/a/abcdefg"
         val file = MultipartFileWrapper(
             "text file".toByteArray(),
             "text.txt",
             "text/plain",
         )
-
         `when`(fileService.urlToMultipartFile(URI.create(picture).toURL())).thenReturn(file)
         `when`(fileService.uploadImage(file)).thenThrow(InvalidFileException::class.java)
 
         // when // then
         assertThatThrownBy { profileService.saveProfile(picture) }
             .isInstanceOf(InvalidFileException::class.java)
-    }
-
-    @DisplayName("성공-createProfile")
-    @Test
-    fun `success-createMember`() {
-        // given
-        val picture = "https://lh3.googleusercontent.com/a/abcdefg"
-
-        // when
-        val response = profileService.createProfile(picture)
-
-        // then
-        assertThat(response.id).isPositive()
+        verify(fileService).urlToMultipartFile(URI.create(picture).toURL())
+        verify(fileService).uploadImage(file)
     }
 
     @DisplayName("성공-getProfile")
     @Test
     fun `success-getProfile`() {
         // given
-        val provider = Provider.GOOGLE
-        val providerId = "012345678901234567890"
-        val name = "송준희"
-        val email = "mike.urssu@gmail.com"
-        val picture = "https://lh3.googleusercontent.com/a/abcdefg"
-
-        val profile = Profile(picture)
-        val member = memberRepository.save(Member(provider, providerId, name, email, profile))
-
         val id = member.id!!
 
         // when
@@ -123,7 +120,7 @@ class ProfileServiceTest : TestContainers() {
         // then
         assertThat(response).isNotNull
             .extracting("name", "email", "picture")
-            .contains(name, email, picture)
+            .containsExactly(member.name, member.email, "$bucket/profiles/${member.profile.picture}")
     }
 
     @DisplayName("fail-getProfile")
@@ -134,6 +131,132 @@ class ProfileServiceTest : TestContainers() {
 
         // when // then
         assertThatThrownBy { profileService.getProfile(id) }
+            .isInstanceOf(MemberNotFoundException::class.java)
+    }
+
+    @DisplayName("성공-updatePicture")
+    @Test
+    fun `success-updatePicture`() {
+        // given
+        val id = member.id!!
+        val objectName = ULID.nextULID().toString()
+        val file = MultipartFileWrapper(
+            byteArrayOf(
+                0x89.toByte(), 0x50.toByte(), 0x4E.toByte(), 0x47.toByte(),
+                0x0D.toByte(), 0x0A.toByte(), 0x1A.toByte(), 0x0A.toByte()
+            ),
+            "profile.png",
+            "image/png",
+        )
+        `when`(fileService.uploadImage(file)).thenReturn(objectName)
+
+        // when
+        val response = profileService.updatePicture(id, file)
+
+        // then
+        assertThat(response.picture).isEqualTo("$bucket/profiles/$objectName")
+        verify(fileService).uploadImage(file)
+    }
+
+    @DisplayName("실패-updatePicture(user not exists)")
+    @Test
+    fun `fail-updatePicture(user not exists)`() {
+        // given
+        val id = 999_999L
+        val file = MultipartFileWrapper(
+            byteArrayOf(
+                0x89.toByte(), 0x50.toByte(), 0x4E.toByte(), 0x47.toByte(),
+                0x0D.toByte(), 0x0A.toByte(), 0x1A.toByte(), 0x0A.toByte()
+            ),
+            "profile.png",
+            "image/png",
+        )
+
+        // when // then
+        assertThatThrownBy { profileService.updatePicture(id, file) }
+            .isInstanceOf(MemberNotFoundException::class.java)
+    }
+
+    @DisplayName("실패-updatePicture(invalid file)")
+    @Test
+    fun `fail-updatePicture(invalid file)`() {
+        // given
+        val id = member.id!!
+        val file = MultipartFileWrapper(
+            "text file".toByteArray(),
+            "text.txt",
+            "text/plain",
+        )
+        `when`(fileService.uploadImage(file)).thenThrow(InvalidFileException::class.java)
+
+        // when // then
+        assertThatThrownBy { profileService.updatePicture(id, file) }
+            .isInstanceOf(InvalidFileException::class.java)
+    }
+
+    @DisplayName("성공-updateProfileInfo(update all properties)")
+    @Test
+    fun `success-updateProfileInfo(update all properties)`() {
+        // given
+        val id = member.id!!
+        val introduction = "new introduction"
+        val website = "new website"
+        val request = ProfileInfoUpdateRequest(Optional.of(introduction), Optional.of(website))
+
+        // when
+        val response = profileService.updateInfo(id, request)
+
+        // then
+        assertThat(response)
+            .extracting("introduction", "website")
+            .containsExactly(introduction, website)
+    }
+
+    @DisplayName("성공-updateProfileInfo(update partial properties)")
+    @Test
+    fun `success-updateProfileInfo(update partial properties)`() {
+        // given
+        val id = member.id!!
+        val introduction = "new introduction"
+        val request = ProfileInfoUpdateRequest(Optional.of(introduction), null)
+
+        // when
+        val response = profileService.updateInfo(id, request)
+
+        // then
+        assertThat(response)
+            .extracting("introduction", "website")
+            .containsExactly(introduction, member.profile.website)
+    }
+
+    @DisplayName("성공-updateProfileInfo(update null properties)")
+    @Test
+    fun `success-updateProfileInfo(update null properties)`() {
+        // given
+        val id = member.id!!
+        val introduction = "new introduction"
+        val request = ProfileInfoUpdateRequest(Optional.of(introduction), Optional.ofNullable(null))
+
+        // when
+        val response = profileService.updateInfo(id, request)
+
+        // then
+        assertThat(response)
+            .extracting("introduction", "website")
+            .containsExactly(introduction, null)
+    }
+
+    @DisplayName("실패-updateProfileInfo")
+    @Test
+    fun `fail-updateProfileInfo)`() {
+        // given
+        val id = 999_999L
+        val introduction = "new introduction"
+        val website = "new website"
+        val request = ProfileInfoUpdateRequest(Optional.of(introduction), Optional.of(website))
+
+        // when // then
+        assertThatThrownBy { profileService.updateInfo(id, request) }
             .isInstanceOf(MemberNotFoundException::class.java)
     }
 }

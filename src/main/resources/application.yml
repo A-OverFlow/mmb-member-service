@@ -29,7 +29,7 @@ spring:
 logging:
   level:
     root: ${LOG_ROOT_LEVEL:info}
-    org.hibernate.orm.jdbc.bind: ${LOG_JPA_LEVEL:TRACE}
+    org.hibernate.orm.jdbc.bind: ${LOG_JPA_LEVEL:trace}
 
 minio:
   host: ${MINIO_HOST:http://localhost}
