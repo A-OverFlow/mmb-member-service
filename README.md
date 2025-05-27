@@ -39,9 +39,10 @@ You can start MySQL locally with whatever installer works for your OS or use doc
 
 ```bash
 docker run -d \
-  --name mysql \
-  -e MYSQL_USER=demo_user \
+  --name mmb-member-service-mysql \
   -e MYSQL_ROOT_PASSWORD=demo_password \
+  -e MYSQL_USER=demo_user \
+  -e MYSQL_PASSWORD=demo_password \
   -e MYSQL_DATABASE=demo_db \
   -p 3306:3306 \
   -v mysql_data:/var/lib/mysql \
@@ -49,11 +50,19 @@ docker run -d \
   mysql:8
 ```
 
+If you see `ERROR 1524 (HY000): Plugin 'mysql_native_password' is not loaded` message, run command to clean volume.
+
+```bash
+docker volume rm mysql_data
+```
+
 ## Minio configuration
 
 ```bash
 docker run -d \
   --name minio \
+  -e MINIO_ROOT_USER=demo_user \
+  -e MINIO_ROOT_PASSWORD=demo_password \
   -p 9000:9000 \
   -p 9001:9001 \
   -v minio_data:/data \
@@ -61,17 +70,7 @@ docker run -d \
   minio/minio:latest server /data --console-address ":9001"
 ```
 
-```bash
-docker run --rm \
-  --name init_minio \
-  minio/mc \
-  bash -c "
-    sleep 5;
-    mc alias set minio http://minio:9000 demo_user demo_password;
-    mc mb minio images || true;
-    mc anonymous set public minio/images;
-  "
-```
+After installing minio container, you should create bucket named `images` and set `Access Policy` into `Public`.
 
 ## Run `mmb-member-service` with docker-compose
 
