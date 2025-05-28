@@ -2,7 +2,7 @@
 
 ## Understanding the application with a diagrams
 
-TBD
+![Image](https://github.com/user-attachments/assets/2b29ab02-043d-437f-8b6d-e9ae7c575770)
 
 ## Run `mmb-member-service` locally
 
