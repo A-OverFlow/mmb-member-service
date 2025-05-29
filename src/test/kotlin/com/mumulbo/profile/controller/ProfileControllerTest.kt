@@ -80,6 +80,7 @@ class ProfileControllerTest : TestContainers() {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.name", `is`(member.name)))
             .andExpect(jsonPath("$.email", `is`(member.email)))
+            .andExpect(jsonPath("$.nickname", `is`(member.profile.nickname)))
             .andExpect(jsonPath("$.picture", `is`("$bucket/profiles/${member.profile.picture}")))
             .andExpect(jsonPath("$.introduction", `is`(member.profile.introduction)))
             .andExpect(jsonPath("$.website", `is`(member.profile.website)))
@@ -121,9 +122,14 @@ class ProfileControllerTest : TestContainers() {
         // given
         val id = member.id!!
 
+        val nickname = "new nickname"
         val introduction = "new introduction"
         val website = "new website"
-        val request = ProfileInfoUpdateRequest(Optional.of(introduction), Optional.of(website))
+        val request = ProfileInfoUpdateRequest(
+            nickname = nickname,
+            introduction = Optional.of(introduction),
+            website = Optional.of(website)
+        )
 
         // when // then
         mockMvc.perform(
@@ -133,6 +139,7 @@ class ProfileControllerTest : TestContainers() {
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isOk)
+            .andExpect(jsonPath("$.nickname", `is`(nickname)))
             .andExpect(jsonPath("$.introduction", `is`(introduction)))
             .andExpect(jsonPath("$.website", `is`(website)))
     }
@@ -144,7 +151,10 @@ class ProfileControllerTest : TestContainers() {
         val id = member.id!!
 
         val introduction = "new introduction"
-        val request = ProfileInfoUpdateRequest(Optional.of(introduction), null)
+        val request = ProfileInfoUpdateRequest(
+            introduction = Optional.of(introduction),
+            website = null
+        )
 
         // when // then
         mockMvc.perform(
@@ -154,6 +164,7 @@ class ProfileControllerTest : TestContainers() {
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isOk)
+            .andExpect(jsonPath("$.nickname", `is`(member.profile.nickname)))
             .andExpect(jsonPath("$.introduction", `is`(introduction)))
             .andExpect(jsonPath("$.website", `is`(member.profile.website)))
     }
@@ -165,7 +176,10 @@ class ProfileControllerTest : TestContainers() {
         val id = member.id!!
 
         val introduction = "new introduction"
-        val request = ProfileInfoUpdateRequest(Optional.of(introduction), Optional.ofNullable(null))
+        val request = ProfileInfoUpdateRequest(
+            introduction = Optional.of(introduction),
+            website = Optional.empty()
+        )
 
         // when // then
         mockMvc.perform(
@@ -175,6 +189,7 @@ class ProfileControllerTest : TestContainers() {
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isOk)
+            .andExpect(jsonPath("$.nickname", `is`(member.profile.nickname)))
             .andExpect(jsonPath("$.introduction", `is`(introduction)))
             .andExpect(jsonPath("$.website").value(nullValue()))
     }

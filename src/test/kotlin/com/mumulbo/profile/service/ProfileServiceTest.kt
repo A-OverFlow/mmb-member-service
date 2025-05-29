@@ -206,17 +206,22 @@ class ProfileServiceTest : TestContainers() {
     fun `success-updateProfileInfo(update all properties)`() {
         // given
         val id = member.id!!
+        val nickname = "new nickname"
         val introduction = "new introduction"
         val website = "new website"
-        val request = ProfileInfoUpdateRequest(Optional.of(introduction), Optional.of(website))
+        val request = ProfileInfoUpdateRequest(
+            nickname = nickname,
+            introduction = Optional.of(introduction),
+            website = Optional.of(website)
+        )
 
         // when
         val response = profileService.updateInfo(id, request)
 
         // then
         assertThat(response)
-            .extracting("introduction", "website")
-            .containsExactly(introduction, website)
+            .extracting("nickname", "introduction", "website")
+            .containsExactly(nickname, introduction, website)
     }
 
     @DisplayName("성공-updateProfileInfo(update partial properties)")
@@ -225,15 +230,18 @@ class ProfileServiceTest : TestContainers() {
         // given
         val id = member.id!!
         val introduction = "new introduction"
-        val request = ProfileInfoUpdateRequest(Optional.of(introduction), null)
+        val request = ProfileInfoUpdateRequest(
+            introduction = Optional.of(introduction),
+            website = null
+        )
 
         // when
         val response = profileService.updateInfo(id, request)
 
         // then
         assertThat(response)
-            .extracting("introduction", "website")
-            .containsExactly(introduction, member.profile.website)
+            .extracting("nickname", "introduction", "website")
+            .containsExactly(member.profile.nickname, introduction, member.profile.website)
     }
 
     @DisplayName("성공-updateProfileInfo(update null properties)")
@@ -242,15 +250,18 @@ class ProfileServiceTest : TestContainers() {
         // given
         val id = member.id!!
         val introduction = "new introduction"
-        val request = ProfileInfoUpdateRequest(Optional.of(introduction), Optional.ofNullable(null))
+        val request = ProfileInfoUpdateRequest(
+            introduction = Optional.of(introduction),
+            website = Optional.ofNullable(null)
+        )
 
         // when
         val response = profileService.updateInfo(id, request)
 
         // then
         assertThat(response)
-            .extracting("introduction", "website")
-            .containsExactly(introduction, null)
+            .extracting("nickname", "introduction", "website")
+            .containsExactly(member.profile.nickname, introduction, null)
     }
 
     @DisplayName("실패-updateProfileInfo")
@@ -260,7 +271,10 @@ class ProfileServiceTest : TestContainers() {
         val id = 999_999L
         val introduction = "new introduction"
         val website = "new website"
-        val request = ProfileInfoUpdateRequest(Optional.of(introduction), Optional.of(website))
+        val request = ProfileInfoUpdateRequest(
+            introduction = Optional.of(introduction),
+            website = Optional.of(website)
+        )
 
         // when // then
         assertThatThrownBy { profileService.updateInfo(id, request) }

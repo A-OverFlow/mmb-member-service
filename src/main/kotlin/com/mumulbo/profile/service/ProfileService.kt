@@ -49,6 +49,7 @@ class ProfileService(
         val member = memberRepository.findWithProfileById(id) ?: throw MemberNotFoundException()
         val profile = member.profile
 
+        request.nickname?.let { profile.nickname = it }
         request.introduction?.let { profile.introduction = it.orElse(null) }
         request.website?.let { profile.website = it.orElse(null) }
 

@@ -5,6 +5,7 @@ import com.mumulbo.member.entity.Member
 class ProfileGetResponse(
     val name: String,
     val email: String,
+    val nickname: String,
     val picture: String,
     val introduction: String?,
     val website: String?
@@ -12,6 +13,7 @@ class ProfileGetResponse(
     constructor(member: Member, bucket: String) : this(
         name = member.name,
         email = member.email,
+        nickname = member.profile.nickname,
         picture = "$bucket/profiles/${member.profile.picture}",
         introduction = member.profile.introduction,
         website = member.profile.website

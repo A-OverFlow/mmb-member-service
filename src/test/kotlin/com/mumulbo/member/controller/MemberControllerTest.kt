@@ -138,6 +138,7 @@ class MemberControllerTest : TestContainers() {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.name", `is`(member.name)))
             .andExpect(jsonPath("$.email", `is`(member.email)))
+            .andExpect(jsonPath("$.nickname", `is`(member.profile.nickname)))
             .andExpect(jsonPath("$.picture", `is`("$bucket/profiles/${member.profile.picture}")))
     }
 
