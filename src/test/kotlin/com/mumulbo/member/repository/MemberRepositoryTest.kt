@@ -30,8 +30,9 @@ class MemberRepositoryTest : TestContainers() {
         val name = "송준희"
         val email = "mike.urssu@gmail.com"
 
+        val nickname = "송준희"
         val picture = "https://lh3.googleusercontent.com/a/abcdefg"
-        val profile = Profile(picture)
+        val profile = Profile(nickname, picture)
 
         member = memberRepository.save(Member(provider, providerId, name, email, profile))
     }

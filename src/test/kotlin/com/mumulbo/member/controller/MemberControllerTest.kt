@@ -63,9 +63,10 @@ class MemberControllerTest : TestContainers() {
         val providerId = "012345678901234567890"
         val name = "송준희"
         val email = "mike.urssu@gmail.com"
+        val nickname = "송준희"
         val picture = "abcdefgh"
 
-        val profile = Profile(picture)
+        val profile = Profile(nickname, picture)
         member = memberRepository.save(Member(provider, providerId, name, email, profile))
     }
 
@@ -137,6 +138,7 @@ class MemberControllerTest : TestContainers() {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.name", `is`(member.name)))
             .andExpect(jsonPath("$.email", `is`(member.email)))
+            .andExpect(jsonPath("$.nickname", `is`(member.profile.nickname)))
             .andExpect(jsonPath("$.picture", `is`("$bucket/profiles/${member.profile.picture}")))
     }
 

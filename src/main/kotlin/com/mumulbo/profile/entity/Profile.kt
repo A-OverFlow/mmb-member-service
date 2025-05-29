@@ -11,6 +11,9 @@ import org.hibernate.annotations.DynamicUpdate
 @DynamicUpdate
 class Profile(
     @field:Column
+    var nickname: String,
+
+    @field:Column
     var picture: String
 ) {
     @Id

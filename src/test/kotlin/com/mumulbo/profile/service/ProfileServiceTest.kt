@@ -54,9 +54,10 @@ class ProfileServiceTest : TestContainers() {
         val providerId = "012345678901234567890"
         val name = "송준희"
         val email = "mike.urssu@gmail.com"
+        val nickname = "송준희"
         val picture = "abcdefgh"
 
-        val profile = Profile(picture)
+        val profile = Profile(nickname, picture)
         member = memberRepository.save(Member(provider, providerId, name, email, profile))
     }
 
@@ -64,6 +65,8 @@ class ProfileServiceTest : TestContainers() {
     @Test
     fun `success-saveProfile`() {
         // given
+        val nickname = "송준희"
+
         // mock
         val picture = "https://lh3.googleusercontent.com/a/abcdefg"
         val objectName = ULID.nextULID().toString()
@@ -79,10 +82,12 @@ class ProfileServiceTest : TestContainers() {
         `when`(fileService.uploadImage(file)).thenReturn(objectName)
 
         // when
-        val profile = profileService.saveProfile(picture)
+        val profile = profileService.saveProfile(nickname, picture)
 
         // then
-        assertThat(profile.picture).isEqualTo(objectName)
+        assertThat(profile)
+            .extracting("nickname", "picture")
+            .containsExactly(nickname, objectName)
         verify(fileService).urlToMultipartFile(URI.create(picture).toURL())
         verify(fileService).uploadImage(file)
     }
@@ -91,6 +96,8 @@ class ProfileServiceTest : TestContainers() {
     @Test
     fun `fail-saveProfile`() {
         // given
+        val nickname = "송준희"
+
         // mock
         val picture = "https://lh3.googleusercontent.com/a/abcdefg"
         val file = MultipartFileWrapper(
@@ -102,7 +109,7 @@ class ProfileServiceTest : TestContainers() {
         `when`(fileService.uploadImage(file)).thenThrow(InvalidFileException::class.java)
 
         // when // then
-        assertThatThrownBy { profileService.saveProfile(picture) }
+        assertThatThrownBy { profileService.saveProfile(nickname, picture) }
             .isInstanceOf(InvalidFileException::class.java)
         verify(fileService).urlToMultipartFile(URI.create(picture).toURL())
         verify(fileService).uploadImage(file)
@@ -199,17 +206,22 @@ class ProfileServiceTest : TestContainers() {
     fun `success-updateProfileInfo(update all properties)`() {
         // given
         val id = member.id!!
+        val nickname = "new nickname"
         val introduction = "new introduction"
         val website = "new website"
-        val request = ProfileInfoUpdateRequest(Optional.of(introduction), Optional.of(website))
+        val request = ProfileInfoUpdateRequest(
+            nickname = nickname,
+            introduction = Optional.of(introduction),
+            website = Optional.of(website)
+        )
 
         // when
         val response = profileService.updateInfo(id, request)
 
         // then
         assertThat(response)
-            .extracting("introduction", "website")
-            .containsExactly(introduction, website)
+            .extracting("nickname", "introduction", "website")
+            .containsExactly(nickname, introduction, website)
     }
 
     @DisplayName("성공-updateProfileInfo(update partial properties)")
@@ -218,15 +230,18 @@ class ProfileServiceTest : TestContainers() {
         // given
         val id = member.id!!
         val introduction = "new introduction"
-        val request = ProfileInfoUpdateRequest(Optional.of(introduction), null)
+        val request = ProfileInfoUpdateRequest(
+            introduction = Optional.of(introduction),
+            website = null
+        )
 
         // when
         val response = profileService.updateInfo(id, request)
 
         // then
         assertThat(response)
-            .extracting("introduction", "website")
-            .containsExactly(introduction, member.profile.website)
+            .extracting("nickname", "introduction", "website")
+            .containsExactly(member.profile.nickname, introduction, member.profile.website)
     }
 
     @DisplayName("성공-updateProfileInfo(update null properties)")
@@ -235,15 +250,18 @@ class ProfileServiceTest : TestContainers() {
         // given
         val id = member.id!!
         val introduction = "new introduction"
-        val request = ProfileInfoUpdateRequest(Optional.of(introduction), Optional.ofNullable(null))
+        val request = ProfileInfoUpdateRequest(
+            introduction = Optional.of(introduction),
+            website = Optional.ofNullable(null)
+        )
 
         // when
         val response = profileService.updateInfo(id, request)
 
         // then
         assertThat(response)
-            .extracting("introduction", "website")
-            .containsExactly(introduction, null)
+            .extracting("nickname", "introduction", "website")
+            .containsExactly(member.profile.nickname, introduction, null)
     }
 
     @DisplayName("실패-updateProfileInfo")
@@ -253,7 +271,10 @@ class ProfileServiceTest : TestContainers() {
         val id = 999_999L
         val introduction = "new introduction"
         val website = "new website"
-        val request = ProfileInfoUpdateRequest(Optional.of(introduction), Optional.of(website))
+        val request = ProfileInfoUpdateRequest(
+            introduction = Optional.of(introduction),
+            website = Optional.of(website)
+        )
 
         // when // then
         assertThatThrownBy { profileService.updateInfo(id, request) }
