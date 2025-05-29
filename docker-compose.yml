@@ -10,7 +10,7 @@ services:
     ports:
       - "${CONTAINER_DB_PORT}:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - member_mysql_data:/var/lib/mysql
     networks:
       - external-net
 
@@ -59,7 +59,7 @@ services:
       - external-net
 
 volumes:
-  mysql_data:
+  member_mysql_data:
   minio_data:
 
 networks:
