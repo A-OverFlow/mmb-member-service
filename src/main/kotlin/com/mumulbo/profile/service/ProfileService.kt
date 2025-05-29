@@ -23,10 +23,10 @@ class ProfileService(
     @Value("\${minio.bucket}")
     private val bucket: String
 ) {
-    fun saveProfile(picture: String): Profile {
+    fun saveProfile(nickname: String, picture: String): Profile {
         val file = fileService.urlToMultipartFile(URI.create(picture).toURL())
         val objectName = fileService.uploadImage(file)
-        val profile = Profile(objectName)
+        val profile = Profile(nickname, objectName)
         return profileRepository.save(profile)
     }
 

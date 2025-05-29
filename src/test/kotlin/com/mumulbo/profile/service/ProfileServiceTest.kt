@@ -54,9 +54,10 @@ class ProfileServiceTest : TestContainers() {
         val providerId = "012345678901234567890"
         val name = "송준희"
         val email = "mike.urssu@gmail.com"
+        val nickname = "송준희"
         val picture = "abcdefgh"
 
-        val profile = Profile(picture)
+        val profile = Profile(nickname, picture)
         member = memberRepository.save(Member(provider, providerId, name, email, profile))
     }
 
@@ -64,6 +65,8 @@ class ProfileServiceTest : TestContainers() {
     @Test
     fun `success-saveProfile`() {
         // given
+        val nickname = "송준희"
+
         // mock
         val picture = "https://lh3.googleusercontent.com/a/abcdefg"
         val objectName = ULID.nextULID().toString()
@@ -79,10 +82,12 @@ class ProfileServiceTest : TestContainers() {
         `when`(fileService.uploadImage(file)).thenReturn(objectName)
 
         // when
-        val profile = profileService.saveProfile(picture)
+        val profile = profileService.saveProfile(nickname, picture)
 
         // then
-        assertThat(profile.picture).isEqualTo(objectName)
+        assertThat(profile)
+            .extracting("nickname", "picture")
+            .containsExactly(nickname, objectName)
         verify(fileService).urlToMultipartFile(URI.create(picture).toURL())
         verify(fileService).uploadImage(file)
     }
@@ -91,6 +96,8 @@ class ProfileServiceTest : TestContainers() {
     @Test
     fun `fail-saveProfile`() {
         // given
+        val nickname = "송준희"
+
         // mock
         val picture = "https://lh3.googleusercontent.com/a/abcdefg"
         val file = MultipartFileWrapper(
@@ -102,7 +109,7 @@ class ProfileServiceTest : TestContainers() {
         `when`(fileService.uploadImage(file)).thenThrow(InvalidFileException::class.java)
 
         // when // then
-        assertThatThrownBy { profileService.saveProfile(picture) }
+        assertThatThrownBy { profileService.saveProfile(nickname, picture) }
             .isInstanceOf(InvalidFileException::class.java)
         verify(fileService).urlToMultipartFile(URI.create(picture).toURL())
         verify(fileService).uploadImage(file)

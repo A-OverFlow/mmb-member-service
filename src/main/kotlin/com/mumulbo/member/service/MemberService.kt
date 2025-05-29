@@ -23,7 +23,7 @@ class MemberService(
     }
 
     private fun saveMember(request: MemberCreateOrGetRequest): Member {
-        val profile = profileService.saveProfile(request.picture)
+        val profile = profileService.saveProfile(request.name, request.picture)
         return memberRepository.save(Member.of(request, profile))
     }
 
