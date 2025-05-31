@@ -55,7 +55,7 @@ jobs:
           file: Dockerfile          # 사용할 Dockerfile
           push: true                # 빌드 후 이미지 푸시
           tags: |
-            ${{ vars.DOCKER_IMAGE }}:${{ steps.tagger.outputs.IMAGE_TAG }}  # 이미지 태그 설정
+            ${{ vars.DOCKER_IMAGE }}:${{ steps.tagger.outputs.IMAGE_TAG }}
             ${{ vars.DOCKER_IMAGE }}:dev-latest
 
       - name: docker-compose.yml에 이미지 태그 반영
