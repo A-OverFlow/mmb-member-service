@@ -15,7 +15,7 @@ services:
       - external-net
 
   member-service:
-    image: ${DOCKER_IMAGE}:dev
+    image: ${DOCKER_IMAGE}:IMAGE_TAG_PLACEHOLDER
     container_name: ${APPLICATION_NAME}
     ports:
       - "${APPLICATION_PORT}:${APPLICATION_PORT}"
