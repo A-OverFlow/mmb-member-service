@@ -67,6 +67,10 @@ jobs:
           ssh -i ~/.ssh/ec2.pem -o StrictHostKeyChecking=no ${{ secrets.DEV_EC2_HOST }} \
           "mkdir -p ${{ steps.vars.outputs.DEPLOY_DIR }}"
 
+      - name: my.cnf 파일 존재 여부 확인
+        run: |
+          tree
+
       - name: my.cnf 파일 EC2 서버로 복사
         run: |
           scp -i ~/.ssh/ec2.pem -o StrictHostKeyChecking=no ./docker/mysql/my.cnf \
