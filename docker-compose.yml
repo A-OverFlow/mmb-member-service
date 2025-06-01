@@ -11,14 +11,18 @@ services:
       - "${CONTAINER_DB_PORT}:3306"
     volumes:
       - member_mysql_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
     networks:
       - external-net
+    mem_limit: 384MB
 
   member-service:
     image: ${DOCKER_IMAGE}:IMAGE_TAG_PLACEHOLDER
     container_name: ${APPLICATION_NAME}
     ports:
       - "${APPLICATION_PORT}:${APPLICATION_PORT}"
+    environment:
+      JAVA_OPTS: Xmx128m -Xms128m -XX:MaxMetaspaceSize=64m -Xss256k
     env_file:
       - .env
     networks:
@@ -31,6 +35,7 @@ services:
       options:
         max-size: "10m"
         max-file: "5"
+    mem_limit: 384MB
 
   minio:
     image: minio/minio:latest
@@ -45,6 +50,7 @@ services:
       - minio_data:/data
     networks:
       - external-net
+    mem_limit: 384MB
 
   minio-init: # minio bucket 생성 및 업로드/다운로드 권한 부여
     image: minio/mc
