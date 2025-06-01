@@ -1,0 +1,7 @@
+services:
+  k6:
+    image: grafana/k6:latest
+    volumes:
+      - .:/test
+    working_dir: /test
+    command: run test_script.js

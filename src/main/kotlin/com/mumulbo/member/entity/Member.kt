@@ -14,10 +14,13 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToOne
+import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import java.time.Clock
 import java.time.LocalDateTime
 
 @Entity
+@Table(uniqueConstraints = [UniqueConstraint(name = "member_unique_constraint", columnNames = ["provider", "provider_id"])])
 class Member(
     @Enumerated(EnumType.STRING)
     @field:Column
