@@ -136,6 +136,7 @@ class MemberControllerTest : TestContainers() {
                 .header("X-User-Id", id)
         )
             .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id", `is`(member.id!!.toInt())))
             .andExpect(jsonPath("$.name", `is`(member.name)))
             .andExpect(jsonPath("$.email", `is`(member.email)))
             .andExpect(jsonPath("$.nickname", `is`(member.profile.nickname)))
