@@ -3,6 +3,7 @@ package com.mumulbo.member.dto.response
 import com.mumulbo.member.entity.Member
 
 class MemberGetResponse(
+    val id: Long,
     val name: String,
     val email: String,
     val nickname: String,
@@ -10,7 +11,7 @@ class MemberGetResponse(
 ) {
     companion object {
         fun of(member: Member): MemberGetResponse {
-            return MemberGetResponse(member.name, member.email, member.profile.nickname, "images/profiles/${member.profile.picture}")
+            return MemberGetResponse(member.id!!, member.name, member.email, member.profile.nickname, "images/profiles/${member.profile.picture}")
         }
     }
 }

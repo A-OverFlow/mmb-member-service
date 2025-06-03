@@ -49,7 +49,7 @@ class MemberServiceTest : TestContainers() {
     fun init() {
         // given
         val provider = Provider.GOOGLE
-        val providerId = "012345678901234567890"
+        val providerId = ULID.nextULID().toString()
         val name = "송준희"
         val email = "mike.urssu@gmail.com"
         val nickname = "송준희"
@@ -120,8 +120,8 @@ class MemberServiceTest : TestContainers() {
 
         // then
         assertThat(response)
-            .extracting("name", "email", "picture")
-            .containsExactly(member.name, member.email, "$bucket/profiles/${member.profile.picture}")
+            .extracting("id", "name", "email", "picture")
+            .containsExactly(member.id, member.name, member.email, "$bucket/profiles/${member.profile.picture}")
     }
 
     @DisplayName("실패-getMember")
