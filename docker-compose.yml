@@ -22,7 +22,7 @@ services:
     ports:
       - "${APPLICATION_PORT}:${APPLICATION_PORT}"
     environment:
-      JAVA_OPTS: Xmx128m -Xms128m -XX:MaxMetaspaceSize=64m -Xss256k
+      JAVA_OPTS: Xmx128m -Xms128m -XX:MaxMetaspaceSize=64m -Xss256k -XX:+UseSerialGC
     env_file:
       - .env
     networks:
@@ -35,7 +35,7 @@ services:
       options:
         max-size: "10m"
         max-file: "5"
-    mem_limit: 384MB
+    mem_limit: 512MB
 
   minio:
     image: minio/minio:latest
