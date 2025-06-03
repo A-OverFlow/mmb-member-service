@@ -51,7 +51,7 @@ class ProfileServiceTest : TestContainers() {
     fun init() {
         // given
         val provider = Provider.GOOGLE
-        val providerId = "012345678901234567890"
+        val providerId = ULID.nextULID().toString()
         val name = "송준희"
         val email = "mike.urssu@gmail.com"
         val nickname = "송준희"
@@ -130,7 +130,7 @@ class ProfileServiceTest : TestContainers() {
             .containsExactly(member.name, member.email, "$bucket/profiles/${member.profile.picture}")
     }
 
-    @DisplayName("fail-getProfile")
+    @DisplayName("실패-getProfile")
     @Test
     fun `fail-getProfile`() {
         // given
