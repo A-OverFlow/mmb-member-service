@@ -5,27 +5,49 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import java.nio.charset.StandardCharsets
+import org.slf4j.MDC
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.util.ContentCachingRequestWrapper
 import org.springframework.web.util.ContentCachingResponseWrapper
+import ulid.ULID
 
 @Component
-class ApiLoggingFilter : OncePerRequestFilter() {
+class ApiLoggingFilter(
+    @Value("\${spring.application.name}")
+    private val applicationName: String
+) : OncePerRequestFilter() {
+
     private val log = KotlinLogging.logger { }
+
+    companion object {
+        private const val APPLICATION_NAME = "APPLICATION_NAME"
+        private const val TRACE_ID = "TRACE_ID"
+    }
+
     private val allowedHeaders = setOf("x-user-id", "content-type", "content-length")
 
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
         val wrappedRequest = ContentCachingRequestWrapper(request)
         val wrappedResponse = ContentCachingResponseWrapper(response)
 
-        filterChain.doFilter(wrappedRequest, wrappedResponse)
-        logRequestDetails(wrappedRequest)
-        logResponseDetails(wrappedResponse)
+        val traceId = ULID.nextULID().toString()
+        MDC.put(APPLICATION_NAME, applicationName)
+        MDC.put(TRACE_ID, traceId)
 
-        wrappedResponse.copyBodyToResponse()
+        try {
+            filterChain.doFilter(wrappedRequest, wrappedResponse)
+        } finally {
+            logRequestDetails(wrappedRequest)
+            logResponseDetails(wrappedResponse)
+            wrappedResponse.copyBodyToResponse()
+
+            MDC.remove(APPLICATION_NAME)
+            MDC.remove(TRACE_ID)
+        }
     }
 
     private fun logRequestDetails(request: ContentCachingRequestWrapper) {
