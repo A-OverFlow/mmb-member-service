@@ -3,6 +3,7 @@ package com.mumulbo.member.controller
 import com.mumulbo.member.dto.request.MemberCreateOrGetRequest
 import com.mumulbo.member.dto.response.MemberCreateOrGetResponse
 import com.mumulbo.member.dto.response.MemberGetResponse
+import com.mumulbo.member.dto.response.MemberTotalCountResponse
 import com.mumulbo.member.service.MemberService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -34,5 +35,11 @@ class MemberController(
     fun deleteMyInfo(@RequestHeader("X-User-Id") id: Long): ResponseEntity<Void> {
         memberService.deleteMember(id)
         return ResponseEntity.noContent().build()
+    }
+
+    @GetMapping("/total")
+    fun countMembers(): ResponseEntity<MemberTotalCountResponse> {
+        val totalCount = memberService.countMembers()
+        return ResponseEntity.ok(totalCount)
     }
 }

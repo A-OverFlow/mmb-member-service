@@ -3,6 +3,7 @@ package com.mumulbo.member.service
 import com.mumulbo.member.dto.request.MemberCreateOrGetRequest
 import com.mumulbo.member.dto.response.MemberCreateOrGetResponse
 import com.mumulbo.member.dto.response.MemberGetResponse
+import com.mumulbo.member.dto.response.MemberTotalCountResponse
 import com.mumulbo.member.entity.Member
 import com.mumulbo.member.exception.MemberNotFoundException
 import com.mumulbo.member.repository.MemberRepository
@@ -35,5 +36,9 @@ class MemberService(
     fun deleteMember(id: Long) {
         val member = memberRepository.findById(id).orElseThrow { MemberNotFoundException() }
         memberRepository.delete(member)
+    }
+
+    fun countMembers(): MemberTotalCountResponse {
+        return MemberTotalCountResponse(memberRepository.count())
     }
 }
