@@ -156,4 +156,18 @@ class MemberControllerTest : TestContainers() {
         )
             .andExpect(status().isNoContent)
     }
+
+    @DisplayName("성공-countMembers")
+    @Test
+    fun `success-countMembers`() {
+        // given
+        val count = memberRepository.count().toInt()
+
+        // when // then
+        mockMvc.perform(
+            get("/api/v1/members/total")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.count", `is`(count)))
+    }
 }

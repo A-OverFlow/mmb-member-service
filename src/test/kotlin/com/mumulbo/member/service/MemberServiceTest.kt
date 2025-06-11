@@ -158,4 +158,14 @@ class MemberServiceTest : TestContainers() {
         assertThatThrownBy { memberService.deleteMember(id) }
             .isInstanceOf(MemberNotFoundException::class.java)
     }
+
+    @DisplayName("성공-countMembers")
+    @Test
+    fun `success-countMembers`() {
+        // when
+        val response = memberService.countMembers()
+
+        // then
+        assertThat(response.count).isEqualTo(1)
+    }
 }
