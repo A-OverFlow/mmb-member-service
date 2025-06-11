@@ -27,6 +27,8 @@ spring:
     show-sql: ${JPA_SHOW_SQL:true}
 
 logging:
+  pattern:
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX}  %-5level --- [%X{APPLICATION_NAME}] [%X{TRACE_ID}] %logger{36} : %msg%n"
   level:
     root: ${LOG_ROOT_LEVEL:info}
     org.hibernate.orm.jdbc.bind: ${LOG_JPA_LEVEL:trace}
