@@ -165,7 +165,7 @@ class MemberControllerTest : TestContainers() {
 
         // when // then
         mockMvc.perform(
-            get("/api/v1/members/total")
+            get("/api/v1/members/count")
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.count", `is`(count)))
