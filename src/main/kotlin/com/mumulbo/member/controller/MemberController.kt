@@ -37,7 +37,7 @@ class MemberController(
         return ResponseEntity.noContent().build()
     }
 
-    @GetMapping("/total")
+    @GetMapping("/count")
     fun countMembers(): ResponseEntity<MemberTotalCountResponse> {
         val totalCount = memberService.countMembers()
         return ResponseEntity.ok(totalCount)
