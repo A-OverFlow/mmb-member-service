@@ -69,6 +69,14 @@ services:
     networks:
       - external-net
 
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: ${ZIPKIN_NAME}
+    ports:
+      - "${CONTAINER_ZIPKIN_PORT}:9411"
+    networks:
+      - external-net
+
 volumes:
   member_mysql_data:
   minio_data:

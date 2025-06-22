@@ -1,6 +1,7 @@
 package com.mumulbo.common.config
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.micrometer.observation.annotation.Observed
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
@@ -17,6 +18,7 @@ class LoggingAspect {
             "@within(org.springframework.stereotype.Service) || " +
             "@within(org.springframework.stereotype.Repository))"
     )
+    @Observed(name = "Aop-Logging", contextualName = "method-logging")
     fun logMethodExecution(joinPoint: ProceedingJoinPoint): Any? {
         val className = String.format("%-30s", joinPoint.signature.declaringType.simpleName)
         val methodName = String.format("%-30s", joinPoint.signature.name)
