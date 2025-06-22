@@ -100,6 +100,9 @@ jobs:
           echo "MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}" >> .env
           echo "MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}" >> .env
           echo "MINIO_BUCKET=${{ vars.MINIO_BUCKET }}" >> .env
+          echo "ZIPKIN_NAME=${{ vars.ZIPKIN_NAME }}" >> .env
+          echo "ZIPKIN_HOST=${{ vars.ZIPKIN_HOST }}" >> .env
+          echo "CONTAINER_ZIPKIN_PORT=${{ vars.CONTAINER_ZIPKIN_PORT }}" >> .env
           echo "MMB_DOCKER_NETWORK=${{ vars.MMB_DOCKER_NETWORK }}" >> .env
           echo "DOCKER_IMAGE=${{ vars.DOCKER_IMAGE }}" >> .env
 

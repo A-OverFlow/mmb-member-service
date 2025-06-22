@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.util.ContentCachingRequestWrapper
 import org.springframework.web.util.ContentCachingResponseWrapper
-import ulid.ULID
 
 @Component
 class ApiLoggingFilter(
@@ -25,7 +24,6 @@ class ApiLoggingFilter(
 
     companion object {
         private const val APPLICATION_NAME = "APPLICATION_NAME"
-        private const val TRACE_ID = "TRACE_ID"
     }
 
     private val allowedHeaders = setOf("x-user-id", "content-type", "content-length")
@@ -34,19 +32,14 @@ class ApiLoggingFilter(
         val wrappedRequest = ContentCachingRequestWrapper(request)
         val wrappedResponse = ContentCachingResponseWrapper(response)
 
-        val traceId = ULID.nextULID().toString()
         MDC.put(APPLICATION_NAME, applicationName)
-        MDC.put(TRACE_ID, traceId)
-
         try {
             filterChain.doFilter(wrappedRequest, wrappedResponse)
         } finally {
             logRequestDetails(wrappedRequest)
             logResponseDetails(wrappedResponse)
             wrappedResponse.copyBodyToResponse()
-
-            MDC.remove(APPLICATION_NAME)
-            MDC.remove(TRACE_ID)
+            MDC.clear()
         }
     }
 
