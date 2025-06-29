@@ -39,7 +39,7 @@ services:
 
   minio:
     image: minio/minio:latest
-    container_name: minio
+    container_name: ${MINIO_NAME}
     ports:
       - "${MINIO_PORT}:9000"
       - "${MINIO_CONSOLE_PORT}:9001"
@@ -54,7 +54,7 @@ services:
 
   minio-init: # minio bucket 생성 및 업로드/다운로드 권한 부여
     image: minio/mc
-    container_name: init_minio
+    container_name: init-mmb-minio
     env_file:
       - .env
     depends_on:
